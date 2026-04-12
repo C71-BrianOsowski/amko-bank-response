@@ -1,3 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMKO Capital — Bank Bid Submission</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slate:#2C3E50;--slate-dark:#1A2530;--slate-mid:#34495E;
+    --maroon:#8B2635;--maroon-light:#A63040;
+    --tan:#C8A882;--tan-pale:#F5F0E8;
+    --cream:#FAF8F4;--off-white:#F2EEE8;
+    --gray-light:#E8E4DC;--gray-mid:#C8C4BC;--gray-text:#6B6760;
+    --text-dark:#1A1A1A;--green:#2D6A4F;--white:#ffffff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Source Sans 3',sans-serif;font-weight:400;color:var(--text-dark);background:var(--cream);line-height:1.6;}
+  nav{background:var(--slate);border-bottom:3px solid var(--maroon);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:72px;}
+  .nav-logo img{height:44px;display:block;}
+  .nav-label{color:rgba(255,255,255,0.6);font-size:13px;font-weight:500;letter-spacing:0.5px;}
+  .page-header{background:var(--slate);padding:48px 80px 40px;margin-top:0;}
+  .page-header .eyebrow{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--tan);margin-bottom:12px;}
+  .page-header h1{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:12px;}
+  .page-header p{font-size:15px;color:rgba(255,255,255,0.65);line-height:1.7;max-width:600px;}
+  .trust-bar{background:var(--maroon);padding:12px 80px;display:flex;align-items:center;gap:36px;}
+  .trust-item{display:flex;align-items:center;gap:8px;white-space:nowrap;color:rgba(255,255,255,0.92);font-size:13px;font-weight:600;}
+  .trust-dot{width:4px;height:4px;background:rgba(255,255,255,0.4);border-radius:50%;}
+  .main-wrap{max-width:900px;margin:48px auto;padding:0 24px 80px;}
+  .card{background:var(--white);border:1px solid var(--gray-mid);border-radius:8px;overflow:hidden;margin-bottom:24px;}
+  .card-header{background:var(--slate);padding:18px 28px;display:flex;align-items:center;gap:16px;}
+  .card-num{width:32px;height:32px;background:var(--maroon);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);flex-shrink:0;}
+  .card-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--white);}
+  .card-sub{font-size:13px;color:rgba(255,255,255,0.55);margin-top:2px;}
+  .card-body{padding:32px 28px;}
+  .detail-table{width:100%;border-collapse:collapse;margin-bottom:0;}
+  .detail-table tr td{padding:8px 16px;font-size:14px;border-bottom:1px solid var(--gray-light);}
+  .detail-table tr:last-child td{border-bottom:none;}
+  .detail-table tr td:first-child{font-weight:600;color:#1B3A6B;background-color:#F4F6F9;width:40%;white-space:nowrap;}
+  .detail-table tr td:last-child{color:var(--text-dark);}
+  .fg{display:grid;gap:20px;}
+  .fg.c2{grid-template-columns:1fr 1fr;}
+  .fg.c1{grid-template-columns:1fr;}
+  .fgp{display:flex;flex-direction:column;gap:6px;}
+  .fgp label{font-size:13px;font-weight:600;color:var(--slate);}
+  .fgp label .req{color:var(--maroon);margin-left:2px;}
+  .fgp input,.fgp select,.fgp textarea{width:100%;padding:11px 14px;border:1.5px solid var(--gray-mid);border-radius:4px;font-size:15px;font-family:'Source Sans 3',sans-serif;color:var(--text-dark);background:var(--white);outline:none;transition:border-color 0.2s;}
+  .fgp input:focus,.fgp select:focus,.fgp textarea:focus{border-color:var(--maroon);box-shadow:0 0 0 3px rgba(139,38,53,0.08);}
+  .fgp textarea{resize:vertical;min-height:100px;}
+  .fgp input[readonly]{background:var(--tan-pale);color:var(--gray-text);cursor:not-allowed;}
+  .fhint{font-size:12px;color:var(--gray-text);line-height:1.5;}
+  .ferr{font-size:12px;color:#C0392B;display:none;}
+  .fgp.herr .ferr{display:block;}
+  .fgp.herr input,.fgp.herr select,.fgp.herr textarea{border-color:#C0392B;}
+  .rate-box{background:var(--tan-pale);border:2px solid var(--tan);border-radius:6px;padding:24px 28px;margin-bottom:20px;}
+  .rate-box label{font-size:14px;font-weight:700;color:var(--slate);display:block;margin-bottom:8px;}
+  .rate-input-wrap{display:flex;align-items:center;gap:12px;}
+  .rate-input{width:180px;padding:14px 18px;border:2px solid var(--maroon);border-radius:4px;font-size:24px;font-weight:700;font-family:'Playfair Display',serif;color:var(--maroon);text-align:center;outline:none;}
+  .rate-input:focus{box-shadow:0 0 0 3px rgba(139,38,53,0.12);}
+  .rate-pct{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--maroon);}
+  .rate-hint{font-size:13px;color:var(--gray-text);}
+  .legal-box{background:var(--tan-pale);border:1px solid var(--gray-mid);border-radius:6px;padding:20px 24px;margin-bottom:24px;}
+  .legal-box p{font-size:13px;color:var(--gray-text);line-height:1.75;}
+  .submit-btn{background:var(--green);color:var(--white);border:none;padding:18px 56px;font-size:16px;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all 0.2s;width:100%;}
+  .submit-btn:hover{background:#235a3f;}
+  .submit-btn:disabled{background:var(--gray-mid);cursor:not-allowed;}
+  .success-box{display:none;text-align:center;padding:64px 32px;background:var(--white);border:1px solid var(--gray-mid);border-radius:8px;}
+  .success-box.show{display:block;}
+  .success-icon{width:72px;height:72px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px;color:var(--white);}
+  .success-box h2{font-family:'Playfair Display',serif;font-size:32px;color:var(--slate);margin-bottom:16px;}
+  .success-box p{font-size:16px;color:var(--gray-text);line-height:1.7;max-width:480px;margin:0 auto 12px;}
+  footer{background:var(--slate-dark);padding:32px 80px;display:flex;align-items:center;justify-content:space-between;border-top:3px solid var(--maroon);}
+  .footer-left p{font-size:13px;color:rgba(255,255,255,0.38);}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .card{animation:fadeUp 0.5s ease both;}
+  .card:nth-child(1){animation-delay:0.1s;}
+  .card:nth-child(2){animation-delay:0.2s;}
+  .card:nth-child(3){animation-delay:0.3s;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <img src="data:image/png;base64,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" alt="AMKO Capital" />
+  </div>
+  <span class="nav-label">Bank Bid Submission Portal</span>
+</nav>
+
+<div class="page-header">
+  <div class="eyebrow">AMKO Lease Advantage</div>
+  <h1>Submit Your Rate Bid</h1>
+  <p>Please review the lease opportunity details below and complete your institution's bid. All fields marked with an asterisk are required.</p>
+</div>
+
+<div class="trust-bar">
+  <div class="trust-item">&#10003; Secure Submission</div><div class="trust-dot"></div>
+  <div class="trust-item">&#10003; Bid Confirmation Sent by Email</div><div class="trust-dot"></div>
+  <div class="trust-item">&#10003; Lowest Rate Wins</div><div class="trust-dot"></div>
+  <div class="trust-item">&#10003; AMKO Capital — Municipal Lease Program</div>
+</div>
+
+<div class="main-wrap">
+
+  <div class="success-box" id="successBox">
+    <div class="success-icon">&#10003;</div>
+    <h2>Bid Submitted Successfully</h2>
+    <p>Thank you. Your rate bid has been received by AMKO Capital and recorded for this lease opportunity.</p>
+    <p>A confirmation has been sent to your email address. AMKO Capital will be in touch following the submission deadline.</p>
+  </div>
+
+  <div class="card" id="formContent">
+    <div class="card-header">
+      <div class="card-num">1</div>
+      <div>
+        <div class="card-title">Lease Opportunity Details</div>
+        <div class="card-sub">Pre-filled from the opportunity — do not modify</div>
+      </div>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <table class="detail-table">
+        <tr><td>Request ID</td><td id="dRequestID">—</td></tr>
+        <tr><td>Entity Name</td><td id="dEntityName">—</td></tr>
+        <tr><td>Lease Amount</td><td id="dLeaseAmount">—</td></tr>
+        <tr><td>Lease Term</td><td id="dLeaseTerm">—</td></tr>
+        <tr><td>Lease Purpose</td><td id="dLeasePurpose">—</td></tr>
+        <tr><td>Submission Deadline</td><td id="dResponseDeadline">—</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" id="formContent2">
+    <div class="card-header">
+      <div class="card-num">2</div>
+      <div>
+        <div class="card-title">Your Institution's Information</div>
+        <div class="card-sub">Tell us about your bank and primary contact</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="fg c2" style="margin-bottom:20px;">
+        <div class="fgp" id="ffg-bankName">
+          <label>Bank Name <span class="req">*</span></label>
+          <input type="text" id="fBankName" placeholder="e.g. First National Bank" />
+          <div class="ferr">Please enter your bank name</div>
+        </div>
+        <div class="fgp" id="ffg-contactName">
+          <label>Contact Name <span class="req">*</span></label>
+          <input type="text" id="fContactName" placeholder="First and last name" />
+          <div class="ferr">Please enter your name</div>
+        </div>
+      </div>
+      <div class="fg c2">
+        <div class="fgp" id="ffg-contactEmail">
+          <label>Contact Email <span class="req">*</span></label>
+          <input type="email" id="fContactEmail" placeholder="you@bank.com" />
+          <div class="ferr">Please enter your email address</div>
+        </div>
+        <div class="fgp" id="ffg-contactPhone">
+          <label>Contact Phone <span class="req">*</span></label>
+          <input type="tel" id="fContactPhone" placeholder="(701) 555-0123" />
+          <div class="ferr">Please enter your phone number</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="formContent3">
+    <div class="card-header">
+      <div class="card-num">3</div>
+      <div>
+        <div class="card-title">Your Rate Bid</div>
+        <div class="card-sub">Enter your institution's purchase rate for this lease</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="rate-box">
+        <label>Purchase Rate (% Annual Interest) <span style="color:var(--maroon);">*</span></label>
+        <div class="rate-input-wrap">
+          <input type="number" class="rate-input" id="fRate" placeholder="0.00" step="0.01" min="0" max="99" />
+          <span class="rate-pct">%</span>
+          <span class="rate-hint">Enter your rate as a percentage (e.g. 4.75)</span>
+        </div>
+        <div class="ferr" id="rateErr" style="margin-top:8px;">Please enter your proposed rate</div>
+      </div>
+      <div class="fgp">
+        <label>Optional Notes</label>
+        <textarea id="fNotes" rows="4" placeholder="Any conditions, assumptions, or additional information regarding your bid..."></textarea>
+      </div>
+      <div style="height:24px;"></div>
+      <div class="legal-box">
+        <p>By submitting this bid, your institution confirms that the rate provided is a genuine offer to purchase this tax-exempt municipal lease at the stated rate, subject to satisfactory review of the financial statements and execution of standard lease documentation. AMKO Capital will notify all participating institutions of the outcome following the submission deadline.</p>
+      </div>
+      <button class="submit-btn" id="submitBtn" onclick="fSubmit()">Submit Rate Bid &rarr;</button>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-left">
+    <p>&copy; 2026 AMKO Capital, LLC. All rights reserved. &nbsp;&middot;&nbsp; AMKO Lease Advantage</p>
+  </div>
+</footer>
+
 <script>
   const FLOW_URL = 'https://default4b7f706d9033497ab32a4d92301020.93.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4c1f0b257fa34ff3a0f5b158f4a170f8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KnB4wkbYOeRcotEY5nAgRNg6oHUQJ7M5B2MYJ6_7oeM';
 
@@ -25,6 +232,7 @@
     document.getElementById('dLeaseAmount').textContent = leaseAmount ? formatCurrency(leaseAmount) : '—';
     document.getElementById('dLeaseTerm').textContent = leaseTerm ? leaseTerm + ' years' : '—';
     document.getElementById('dLeasePurpose').textContent = leasePurpose || '—';
+    document.getElementById('dResponseDeadline').textContent = responseDeadline || '—';
   });
 
   function fChk(elId, fgId) {
@@ -92,3 +300,5 @@
     });
   }
 </script>
+</body>
+</html>
