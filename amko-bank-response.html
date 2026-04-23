@@ -63,6 +63,12 @@
   .rate-hint{font-size:13px;color:var(--gray-text);}
   .legal-box{background:var(--tan-pale);border:1px solid var(--gray-mid);border-radius:6px;padding:20px 24px;margin-bottom:24px;}
   .legal-box p{font-size:13px;color:var(--gray-text);line-height:1.75;}
+  .apr-info{background:#F4F6F9;border:1px solid var(--gray-mid);border-radius:6px;padding:14px 20px;margin-bottom:20px;}
+  .apr-info summary{font-size:13px;font-weight:700;color:var(--slate);cursor:pointer;outline:none;list-style-position:inside;}
+  .apr-info summary::marker{color:var(--maroon);}
+  .apr-info[open] summary{margin-bottom:10px;}
+  .apr-info-body p{font-size:13px;color:var(--gray-text);line-height:1.7;margin:8px 0;}
+  .apr-info-body strong{color:var(--slate);}
   .submit-btn{background:var(--green);color:var(--white);border:none;padding:18px 56px;font-size:16px;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all 0.2s;width:100%;}
   .submit-btn:hover{background:#235a3f;}
   .submit-btn:disabled{background:var(--gray-mid);cursor:not-allowed;}
@@ -186,6 +192,14 @@
         </div>
         <div class="ferr" id="rateErr" style="margin-top:8px;">Please enter your proposed rate</div>
       </div>
+      <details class="apr-info">
+        <summary>How bids are ranked — APR methodology</summary>
+        <div class="apr-info-body">
+          <p>AMKO Capital ranks bids on an <strong>all-in Annual Percentage Rate (APR)</strong> basis, combining the purchase rate and origination fee. A lower APR wins. The lowest-quoted rate does not necessarily win if that bid carries a higher origination fee.</p>
+          <p><strong>Calculation:</strong> The origination fee is amortized straight-line over the lease term and added to the quoted rate to produce an effective APR. Payment frequency is incorporated as a compounding adjustment.</p>
+          <p style="margin-bottom:0;"><strong>Formula:</strong> APR = Quoted Rate + ((Origination Fee / Lease Amount) × 2 / Term in Years), with a frequency-of-compounding adjustment. The same methodology is applied to every bid. This approximation closely tracks true internal rate of return for origination fees below 2% of principal and is used for ranking purposes only.</p>
+        </div>
+      </details>
       <div class="rate-box">
         <label>Origination Fee <span style="color:var(--maroon);">*</span></label>
         <div class="rate-input-wrap">
