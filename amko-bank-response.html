@@ -124,8 +124,9 @@
         <tr><td>Request ID</td><td id="dRequestID">—</td></tr>
         <tr><td>Entity Name</td><td id="dEntityName">—</td></tr>
         <tr><td>Lease Amount</td><td id="dLeaseAmount">—</td></tr>
+        <tr><td>Asset / Project</td><td id="dLeasePurpose">—</td></tr>
         <tr><td>Lease Term</td><td id="dLeaseTerm">—</td></tr>
-        <tr><td>Lease Purpose</td><td id="dLeasePurpose">—</td></tr>
+        <tr><td>Payment Frequency</td><td id="dPaymentFrequency">—</td></tr>
         <tr><td>Submission Deadline</td><td id="dResponseDeadline">—</td></tr>
       </table>
     </div>
@@ -172,7 +173,7 @@
       <div class="card-num">3</div>
       <div>
         <div class="card-title">Your Rate Bid</div>
-        <div class="card-sub">Enter your institution's purchase rate for this lease</div>
+        <div class="card-sub">Enter your institution's purchase rate and origination fee for this lease</div>
       </div>
     </div>
     <div class="card-body">
@@ -185,13 +186,22 @@
         </div>
         <div class="ferr" id="rateErr" style="margin-top:8px;">Please enter your proposed rate</div>
       </div>
+      <div class="rate-box">
+        <label>Origination Fee <span style="color:var(--maroon);">*</span></label>
+        <div class="rate-input-wrap">
+          <span class="rate-pct">$</span>
+          <input type="text" class="rate-input" id="fFee" placeholder="0" oninput="fFmtFee(this)" onblur="fBlurFee(this)" value="0" />
+          <span class="rate-hint">One-time fee financed into the lease principal. Enter 0 if no fee.</span>
+        </div>
+        <div class="ferr" id="feeErr" style="margin-top:8px;">Please enter a valid fee amount (enter 0 for no fee)</div>
+      </div>
       <div class="fgp">
         <label>Optional Notes</label>
         <textarea id="fNotes" rows="4" placeholder="Any conditions, assumptions, or additional information regarding your bid..."></textarea>
       </div>
       <div style="height:24px;"></div>
       <div class="legal-box">
-        <p>By submitting this bid, your institution confirms that the rate provided is a genuine offer to purchase this tax-exempt municipal lease at the stated rate, subject to satisfactory review of the financial statements and execution of standard lease documentation. AMKO Capital will notify all participating institutions of the outcome following the submission deadline.</p>
+        <p>By submitting this bid, your institution confirms that the rate and origination fee provided represent a genuine offer to purchase this tax-exempt municipal lease at the stated terms, subject to satisfactory review of the financial statements and execution of standard lease documentation. The origination fee, if any, will be financed into the total lease principal. AMKO Capital will rank bids on an all-in APR basis — combining the purchase rate and origination fee — and notify all participating institutions of the outcome following the submission deadline.</p>
       </div>
       <button class="submit-btn" id="submitBtn" onclick="fSubmit()">Submit Rate Bid &rarr;</button>
     </div>
@@ -219,11 +229,30 @@
     return '$' + num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
   }
 
+  function fParseMoney(val) {
+    if (val === null || val === undefined) return NaN;
+    const cleaned = String(val).replace(/[^0-9.]/g, '');
+    if (cleaned === '') return NaN;
+    return parseFloat(cleaned);
+  }
+
+  function fFmtFee(el) {
+    const raw = el.value.replace(/[^0-9.]/g, '');
+    el.value = raw;
+  }
+
+  function fBlurFee(el) {
+    const num = fParseMoney(el.value);
+    if (isNaN(num) || num < 0) { el.value = '0'; return; }
+    el.value = num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
     const requestID = getParam('requestID');
     const entityName = getParam('entityName');
     const leaseAmount = getParam('leaseAmount');
     const leaseTerm = getParam('leaseTerm');
+    const paymentFrequency = getParam('paymentFrequency');
     const leasePurpose = getParam('leasePurpose');
     const responseDeadline = getParam('responseDeadline');
 
@@ -231,6 +260,7 @@
     document.getElementById('dEntityName').textContent = entityName || '—';
     document.getElementById('dLeaseAmount').textContent = leaseAmount ? formatCurrency(leaseAmount) : '—';
     document.getElementById('dLeaseTerm').textContent = leaseTerm ? leaseTerm + ' years' : '—';
+    document.getElementById('dPaymentFrequency').textContent = paymentFrequency || '—';
     document.getElementById('dLeasePurpose').textContent = leasePurpose || '—';
     document.getElementById('dResponseDeadline').textContent = responseDeadline || '—';
   });
@@ -260,6 +290,16 @@
       rateErr.style.display = 'none';
     }
 
+    const feeEl = document.getElementById('fFee');
+    const feeErr = document.getElementById('feeErr');
+    const feeNum = fParseMoney(feeEl.value);
+    if (isNaN(feeNum) || feeNum < 0) {
+      feeErr.style.display = 'block';
+      ok = false;
+    } else {
+      feeErr.style.display = 'none';
+    }
+
     if (!ok) return;
 
     const btn = document.getElementById('submitBtn');
@@ -271,6 +311,7 @@
       entityName: getParam('entityName'),
       leaseAmount: getParam('leaseAmount'),
       leaseTerm: getParam('leaseTerm'),
+      paymentFrequency: getParam('paymentFrequency'),
       leasePurpose: getParam('leasePurpose'),
       responseDeadline: getParam('responseDeadline'),
       bankName: document.getElementById('fBankName').value,
@@ -278,6 +319,7 @@
       contactEmail: document.getElementById('fContactEmail').value,
       contactPhone: document.getElementById('fContactPhone').value,
       proposedRate: document.getElementById('fRate').value,
+      originationFee: feeNum,
       notes: document.getElementById('fNotes').value
     };
 
