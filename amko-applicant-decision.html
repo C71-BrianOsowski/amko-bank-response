@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMKO Capital — Lease Award Decision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slate:#2C3E50;--slate-dark:#1A2530;--slate-mid:#34495E;
+    --maroon:#8B2635;--maroon-light:#A63040;
+    --tan:#C8A882;--tan-pale:#F5F0E8;
+    --cream:#FAF8F4;--off-white:#F2EEE8;
+    --gray-light:#E8E4DC;--gray-mid:#C8C4BC;--gray-text:#6B6760;
+    --text-dark:#1A1A1A;
+    --accept-green:#1A6B3A;--accept-green-dark:#155A30;
+    --reject-red:#8B1A1A;--reject-red-dark:#6F1414;
+    --white:#ffffff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Source Sans 3',sans-serif;font-weight:400;color:var(--text-dark);background:var(--cream);line-height:1.6;}
+  nav{background:var(--slate);border-bottom:3px solid var(--maroon);padding:18px 48px;display:flex;align-items:center;justify-content:space-between;}
+  .nav-logo img{height:88px;width:auto;display:block;}
+  .nav-label{color:rgba(255,255,255,0.6);font-size:13px;font-weight:500;letter-spacing:0.5px;}
+  .page-header{background:var(--slate);padding:48px 80px 40px;margin-top:0;}
+  .page-header .eyebrow{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--tan);margin-bottom:12px;}
+  .page-header h1{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:12px;}
+  .page-header p{font-size:15px;color:rgba(255,255,255,0.65);line-height:1.7;max-width:640px;}
+  .trust-bar{padding:12px 80px;display:flex;align-items:center;gap:36px;background:var(--slate-mid);}
+  body.accept-mode .trust-bar{background:var(--accept-green);}
+  body.reject-mode .trust-bar{background:var(--reject-red);}
+  .trust-item{display:flex;align-items:center;gap:8px;white-space:nowrap;color:rgba(255,255,255,0.92);font-size:13px;font-weight:600;}
+  .trust-dot{width:4px;height:4px;background:rgba(255,255,255,0.4);border-radius:50%;}
+  .main-wrap{max-width:900px;margin:48px auto;padding:0 24px 80px;}
+  .card{background:var(--white);border:1px solid var(--gray-mid);border-radius:8px;overflow:hidden;margin-bottom:24px;}
+  .card-header{background:var(--slate);padding:18px 28px;display:flex;align-items:center;gap:16px;}
+  .card-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);flex-shrink:0;}
+  body.accept-mode .card-num{background:var(--accept-green);}
+  body.reject-mode .card-num{background:var(--reject-red);}
+  .card-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--white);}
+  .card-sub{font-size:13px;color:rgba(255,255,255,0.55);margin-top:2px;}
+  .card-body{padding:32px 28px;}
+  .detail-table{width:100%;border-collapse:collapse;margin-bottom:0;}
+  .detail-table tr td{padding:8px 16px;font-size:14px;border-bottom:1px solid var(--gray-light);}
+  .detail-table tr:last-child td{border-bottom:none;}
+  .detail-table tr td:first-child{font-weight:600;color:#1B3A6B;background-color:#F4F6F9;width:40%;white-space:nowrap;}
+  .detail-table tr td:last-child{color:var(--text-dark);}
+  .highlight-row td{background-color:#FFF8EC !important;}
+  .highlight-row td:last-child{font-weight:700;font-size:16px;}
+  body.accept-mode .highlight-row td:last-child{color:var(--accept-green);}
+  body.reject-mode .highlight-row td:last-child{color:var(--gray-text);text-decoration:line-through;}
+  .fg{display:grid;gap:20px;}
+  .fg.c2{grid-template-columns:1fr 1fr;}
+  .fg.c1{grid-template-columns:1fr;}
+  .fgp{display:flex;flex-direction:column;gap:6px;}
+  .fgp label{font-size:13px;font-weight:600;color:var(--slate);}
+  .fgp label .req{color:var(--maroon);margin-left:2px;}
+  .fgp label .opt{color:var(--gray-text);font-weight:400;margin-left:6px;font-size:12px;}
+  .fgp input,.fgp select,.fgp textarea{width:100%;padding:11px 14px;border:1.5px solid var(--gray-mid);border-radius:4px;font-size:15px;font-family:'Source Sans 3',sans-serif;color:var(--text-dark);background:var(--white);outline:none;transition:border-color 0.2s;}
+  body.accept-mode .fgp input:focus,body.accept-mode .fgp select:focus,body.accept-mode .fgp textarea:focus{border-color:var(--accept-green);box-shadow:0 0 0 3px rgba(26,107,58,0.10);}
+  body.reject-mode .fgp input:focus,body.reject-mode .fgp select:focus,body.reject-mode .fgp textarea:focus{border-color:var(--reject-red);box-shadow:0 0 0 3px rgba(139,26,26,0.10);}
+  .fgp textarea{resize:vertical;min-height:100px;}
+  .ferr{font-size:12px;color:#C0392B;display:none;}
+  .fgp.herr .ferr{display:block;}
+  .fgp.herr input,.fgp.herr select,.fgp.herr textarea{border-color:#C0392B;}
+  .next-steps-box{background:var(--tan-pale);border-left:3px solid var(--tan);padding:18px 22px;margin-bottom:24px;border-radius:0 4px 4px 0;}
+  .next-steps-box h3{font-family:'Playfair Display',serif;font-size:16px;color:var(--slate);margin-bottom:10px;}
+  .next-steps-box ul{margin:0;padding-left:18px;}
+  .next-steps-box li{font-size:13px;color:var(--gray-text);line-height:1.7;margin-bottom:4px;}
+  .legal-box{background:var(--tan-pale);border:1px solid var(--gray-mid);border-radius:6px;padding:20px 24px;margin-bottom:24px;}
+  .legal-box p{font-size:13px;color:var(--gray-text);line-height:1.75;}
+  .submit-btn{color:var(--white);border:none;padding:18px 56px;font-size:16px;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all 0.2s;width:100%;}
+  body.accept-mode .submit-btn{background:var(--accept-green);}
+  body.accept-mode .submit-btn:hover{background:var(--accept-green-dark);}
+  body.reject-mode .submit-btn{background:var(--reject-red);}
+  body.reject-mode .submit-btn:hover{background:var(--reject-red-dark);}
+  .submit-btn:disabled{background:var(--gray-mid)!important;cursor:not-allowed;}
+  .switch-link{text-align:center;font-size:13px;color:var(--gray-text);margin-top:8px;}
+  .switch-link a{color:var(--slate);text-decoration:underline;font-weight:600;}
+  .switch-link a:hover{color:var(--maroon);}
+  .success-box{display:none;text-align:center;padding:64px 32px;background:var(--white);border:1px solid var(--gray-mid);border-radius:8px;}
+  .success-box.show{display:block;}
+  .success-icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px;color:var(--white);}
+  body.accept-mode .success-icon{background:var(--accept-green);}
+  body.reject-mode .success-icon{background:var(--reject-red);}
+  .success-box h2{font-family:'Playfair Display',serif;font-size:32px;color:var(--slate);margin-bottom:16px;}
+  .success-box p{font-size:16px;color:var(--gray-text);line-height:1.7;max-width:520px;margin:0 auto 12px;}
+  .error-page{display:none;text-align:center;padding:64px 32px;background:var(--white);border:1px solid var(--gray-mid);border-radius:8px;}
+  .error-page.show{display:block;}
+  .error-page h2{font-family:'Playfair Display',serif;font-size:28px;color:var(--maroon);margin-bottom:16px;}
+  .error-page p{font-size:15px;color:var(--gray-text);line-height:1.7;max-width:520px;margin:0 auto 12px;}
+  footer{background:var(--slate-dark);padding:32px 80px;display:flex;align-items:center;justify-content:space-between;border-top:3px solid var(--maroon);}
+  .footer-left p{font-size:13px;color:rgba(255,255,255,0.38);}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .card{animation:fadeUp 0.5s ease both;}
+  .card:nth-child(1){animation-delay:0.1s;}
+  .card:nth-child(2){animation-delay:0.2s;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <img src="data:image/png;base64,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oc8//5yqqqqooKiQbPZqSj2ZRs89v6RNh9osXLiQysvLKTs7u82H/CxZsoSKioro3Xffpejo6DrLExMTQx9++CEREY0ePbpe5T569Cjl5uY26DO++Zc/k9Ptor++/bdrtnvp5WVUWWWl/CuXadiI4bWmuWnzVySTQi+9vOy619etW0eDBw++7vk333yTbDYbvf/++9e9NmjQIProo4/qLP+GDRvIZrNRQkL9j8H777+fLBYL7d+/v83/97ed7HNn6fSZTCorN9P0GTcOEM3lXG4OFZeW0Gefr2uV/F56eRldLrhC5opyGnP32Cbn+b9/fpPMFeWUkXmaKqus9Ps/vNbgNOc/uIDO5pwji7WSjh4/RoOHDmmW7+LNN9+k6upqstlstHr1aoqLi2twutOmTaNTGemUduokFZeWkMPlpP/77lsaNaZ+Qay5tZfg/+tf/5pcLhc988wz9S7Hxo0baerUqTd9/6hRo6iiooLMZjM98cQT9U7/xWUvkUJEK/7z3nXb/OH1P5JLctO65M9rTe/d91aQxVpJy155+brX6zphLVu2jIiI3n777Vpfr+uz9ujRgy5dukRFRUW0YsWKen++0aNHU3l5OR0+fPiWCf63RIfvwsceJV9fX8iyDLvdjrlz57Z4niNGjSSNRgOz2Yxx48Zh+MgRLf5PffTRR2G32+F0OhEVFdXk9AoKCgB4xp8LgoDy8vIGbX9XUiK99tprCAgIwPHjxzEoYSA7cqjudtL6iImJof3799OiRYtQVlaGRYsW4bHHHmMZGRkNTnfz5s2sb1wflpaWBkVRkJGRgcGDB+PLL7/EtAem3zIHYXOKj4+nN998E+vWrcO7775b7+/0s88+g91uv+n75s6diwMHDqC0tBTz5s1rUNkcTgckSbru+fXr16OkpARxcXF1bms0GmudQ1FXM5XRaISiKNBqtbWm980339S63Zw5c3D69Gnk5+dj3LhxdZanNqIowum8de4VcUsE/9GjRwMAAgMDYbfb0b9/f0T3iGnRg9tkMkGr1UIURUiShCeffLIls8PSl16kDh06wOFwwMfHp86dtiHUajUAQFEUuN1uOByOem/bp19f+uyzz9CxY0dkZ2djzKjRTW5Tj4uLozVr1qBLly5QFAXPPvsskpOTm5zuww8+xD777DP069cPZrMZlZWVWLFiBR55dOEddwJ4+umn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" alt="AMKO Capital" />
+  </div>
+  <span class="nav-label">Applicant Decision Portal</span>
+</nav>
+
+<div class="page-header">
+  <div class="eyebrow">AMKO Lease Advantage</div>
+  <h1 id="pageTitle">Confirm Your Decision</h1>
+  <p id="pageSubtitle">Please review the lease award details below and confirm your decision.</p>
+</div>
+
+<div class="trust-bar">
+  <div class="trust-item">&#10003; Secure Confirmation</div><div class="trust-dot"></div>
+  <div class="trust-item">&#10003; Audit Trail Recorded</div><div class="trust-dot"></div>
+  <div class="trust-item">&#10003; AMKO Capital — Municipal Lease Program</div>
+</div>
+
+<div class="main-wrap">
+
+  <div class="success-box" id="successBox">
+    <div class="success-icon" id="successIcon">&#10003;</div>
+    <h2 id="successTitle">Decision Recorded</h2>
+    <p id="successMsg1">Your decision has been received by AMKO Capital and a confirmation has been sent to your email.</p>
+    <p id="successMsg2">You may now close this window.</p>
+  </div>
+
+  <div class="error-page" id="errorPage">
+    <h2>Invalid Decision Link</h2>
+    <p>This link appears to be missing required information. Please return to the original award notification email and click ACCEPT or REJECT.</p>
+    <p>If the issue persists, please contact AMKO Capital directly.</p>
+  </div>
+
+  <div id="formContent">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-num">1</div>
+        <div>
+          <div class="card-title">Lease Award Summary</div>
+          <div class="card-sub">Please verify these details match the award notification email</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="detail-table">
+          <tr><td>Request ID</td><td id="dRequestID">—</td></tr>
+          <tr><td>Entity Name</td><td id="dEntityName">—</td></tr>
+          <tr><td>Lease Amount</td><td id="dLeaseAmount">—</td></tr>
+          <tr><td>Asset / Project</td><td id="dLeasePurpose">—</td></tr>
+          <tr><td>Lease Term</td><td id="dLeaseTerm">—</td></tr>
+          <tr><td>Winning Bank</td><td id="dWinningBank">—</td></tr>
+          <tr class="highlight-row"><td>Winning Rate</td><td id="dWinningRate">—</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-num">2</div>
+        <div>
+          <div class="card-title" id="confirmCardTitle">Confirm Acceptance</div>
+          <div class="card-sub" id="confirmCardSub">Provide your name to complete the confirmation</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="next-steps-box" id="nextStepsBox">
+          <h3 id="nextStepsTitle">What happens next</h3>
+          <ul id="nextStepsList"></ul>
+        </div>
+
+        <div class="fg c2" style="margin-bottom:20px;">
+          <div class="fgp" id="ffg-confirmerName">
+            <label>Your Name <span class="req">*</span></label>
+            <input type="text" id="fConfirmerName" placeholder="First and last name" />
+            <div class="ferr">Please enter your name</div>
+          </div>
+          <div class="fgp" id="ffg-confirmerTitle">
+            <label>Your Title <span class="opt">(optional)</span></label>
+            <input type="text" id="fConfirmerTitle" placeholder="e.g. City Administrator" />
+          </div>
+        </div>
+
+        <div class="fgp" style="margin-bottom:20px;" id="notesGroup">
+          <label id="notesLabel">Notes <span class="opt">(optional)</span></label>
+          <textarea id="fNotes" rows="4" placeholder=""></textarea>
+        </div>
+
+        <div class="legal-box">
+          <p id="legalText"></p>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="fSubmit()">Confirm Decision</button>
+
+        <div class="switch-link">
+          <span id="switchPrompt"></span>
+          <a href="#" id="switchLink" onclick="fSwitchDecision(event)">Switch decision</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-left">
+    <p>&copy; 2026 AMKO Capital, LLC. All rights reserved. &nbsp;&middot;&nbsp; AMKO Lease Advantage</p>
+  </div>
+</footer>
+
+<script>
+  const FLOW_URL = 'PASTE_APPLICANT_DECISION_FLOW_HTTP_TRIGGER_URL_HERE';
+
+  function getParam(name) {
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name) || '';
+  }
+
+  function formatCurrency(val) {
+    const num = parseFloat(val);
+    if (isNaN(num) || num <= 0) return '—';
+    return '$' + num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+  }
+
+  function formatTerm(val) {
+    const num = parseFloat(val);
+    if (isNaN(num) || num <= 0) return '—';
+    return num + ' years';
+  }
+
+  function formatRate(val) {
+    const num = parseFloat(val);
+    if (isNaN(num) || num <= 0) return '—';
+    return num.toFixed(2) + '%';
+  }
+
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val || '—';
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const decision = (getParam('decision') || '').toLowerCase();
+    const requestID = getParam('requestID');
+
+    if ((decision !== 'accept' && decision !== 'reject') || !requestID) {
+      document.getElementById('formContent').style.display = 'none';
+      document.getElementById('errorPage').classList.add('show');
+      return;
+    }
+
+    document.body.classList.add(decision === 'accept' ? 'accept-mode' : 'reject-mode');
+
+    setText('dRequestID', requestID);
+    setText('dEntityName', getParam('entityName'));
+    setText('dLeaseAmount', formatCurrency(getParam('leaseAmount')));
+    setText('dLeasePurpose', getParam('leasePurpose'));
+    setText('dLeaseTerm', formatTerm(getParam('leaseTerm')));
+    setText('dWinningBank', getParam('winningBank'));
+    setText('dWinningRate', formatRate(getParam('winningRate')));
+
+    if (decision === 'accept') {
+      document.getElementById('pageTitle').textContent = 'Accept Lease Award';
+      document.getElementById('pageSubtitle').textContent = 'You are confirming your entity\'s acceptance of this lease award. Please review the details below and complete the confirmation.';
+      document.getElementById('confirmCardTitle').textContent = 'Confirm Acceptance';
+      document.getElementById('confirmCardSub').textContent = 'Provide your name to complete the confirmation';
+      document.getElementById('nextStepsTitle').textContent = 'What happens after you confirm';
+      document.getElementById('nextStepsList').innerHTML =
+        '<li>AMKO Capital will be notified of your acceptance and begin documentation preparation.</li>' +
+        '<li>The winning bank will be notified to begin its closing process.</li>' +
+        '<li>Other participating banks will be informed that the solicitation has been awarded (no rate details disclosed).</li>' +
+        '<li>You will receive a confirmation email with a record of this decision.</li>';
+      document.getElementById('legalText').innerHTML =
+        'By clicking <strong>Confirm Decision</strong>, you confirm that you are authorized to accept this lease award on behalf of your entity. ' +
+        'AMKO Capital is authorized to proceed with documentation based on the winning bank\'s rate shown above. ' +
+        'A timestamped record of this decision will be retained for the file.';
+      document.getElementById('submitBtn').textContent = '\u2713  Confirm Acceptance';
+      document.getElementById('switchPrompt').textContent = 'Did you mean to reject this award? ';
+      document.getElementById('notesLabel').innerHTML = 'Notes <span class="opt">(optional)</span>';
+      document.getElementById('fNotes').placeholder = 'Any internal notes or comments regarding this acceptance...';
+    } else {
+      document.getElementById('pageTitle').textContent = 'Reject Lease Award';
+      document.getElementById('pageSubtitle').textContent = 'You are confirming your entity\'s rejection of this lease award. Please review the details below and complete the confirmation.';
+      document.getElementById('confirmCardTitle').textContent = 'Confirm Rejection';
+      document.getElementById('confirmCardSub').textContent = 'Provide your name and, if you wish, a reason';
+      document.getElementById('nextStepsTitle').textContent = 'What happens after you confirm';
+      document.getElementById('nextStepsList').innerHTML =
+        '<li>AMKO Capital will be notified that this solicitation has not been awarded.</li>' +
+        '<li>All participating banks will be informed that the solicitation has been declined (no further detail disclosed).</li>' +
+        '<li>You will receive a confirmation email with a record of this decision.</li>' +
+        '<li>If circumstances change, you may contact AMKO Capital to discuss reopening the request.</li>';
+      document.getElementById('legalText').innerHTML =
+        'By clicking <strong>Confirm Decision</strong>, you confirm that you are authorized to reject this lease award on behalf of your entity. ' +
+        'No documentation will proceed and all participating banks will be notified that the solicitation has been declined. ' +
+        'A timestamped record of this decision will be retained for the file.';
+      document.getElementById('submitBtn').textContent = '\u2715  Confirm Rejection';
+      document.getElementById('switchPrompt').textContent = 'Did you mean to accept this award? ';
+      document.getElementById('notesLabel').innerHTML = 'Reason for Rejection <span class="opt">(optional)</span>';
+      document.getElementById('fNotes').placeholder = 'If you wish, briefly share why this award is being declined. This helps AMKO Capital improve future solicitations.';
+    }
+  });
+
+  function fSwitchDecision(evt) {
+    evt.preventDefault();
+    const current = (getParam('decision') || '').toLowerCase();
+    const target = current === 'accept' ? 'reject' : 'accept';
+    const url = new URL(window.location.href);
+    url.searchParams.set('decision', target);
+    window.location.href = url.toString();
+  }
+
+  function fChk(elId, fgId) {
+    const el = document.getElementById(elId);
+    const fg = document.getElementById(fgId);
+    if (!el || !fg) return true;
+    if (!el.value.trim()) { fg.classList.add('herr'); return false; }
+    fg.classList.remove('herr');
+    return true;
+  }
+
+  function fSubmit() {
+    let ok = true;
+    if (!fChk('fConfirmerName', 'ffg-confirmerName')) ok = false;
+    if (!ok) return;
+
+    const btn = document.getElementById('submitBtn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
+    const decision = (getParam('decision') || '').toLowerCase();
+
+    const payload = {
+      decision: decision,
+      requestID: getParam('requestID'),
+      entityName: getParam('entityName'),
+      leaseAmount: getParam('leaseAmount'),
+      leaseTerm: getParam('leaseTerm'),
+      leasePurpose: getParam('leasePurpose'),
+      winningBank: getParam('winningBank'),
+      winningRate: getParam('winningRate'),
+      confirmerName: document.getElementById('fConfirmerName').value.trim(),
+      confirmerTitle: document.getElementById('fConfirmerTitle').value.trim(),
+      notes: document.getElementById('fNotes').value.trim(),
+      decisionTimestamp: new Date().toISOString()
+    };
+
+    fetch(FLOW_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      document.getElementById('formContent').style.display = 'none';
+
+      if (decision === 'accept') {
+        document.getElementById('successTitle').textContent = 'Acceptance Recorded';
+        document.getElementById('successMsg1').textContent = 'Your acceptance of this lease award has been recorded. AMKO Capital will be in touch shortly to begin documentation.';
+      } else {
+        document.getElementById('successIcon').innerHTML = '&#10005;';
+        document.getElementById('successTitle').textContent = 'Rejection Recorded';
+        document.getElementById('successMsg1').textContent = 'Your rejection of this lease award has been recorded. All participating banks will be notified that the solicitation has been declined.';
+      }
+
+      document.getElementById('successBox').classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    })
+    .catch(() => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+      alert('There was an error recording your decision. Please try again or contact AMKO Capital at info@amkocap.com');
+    });
+  }
+</script>
+</body>
+</html>
