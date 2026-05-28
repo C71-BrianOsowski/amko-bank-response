@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMKO Capital — Lease Award Decision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slate:#2C3E50;--slate-dark:#1A2530;--slate-mid:#34495E;
+    --maroon:#8B2635;--maroon-light:#A63040;
+    --tan:#C8A882;--tan-pale:#F5F0E8;
+    --cream:#FAF8F4;--off-white:#F2EEE8;
+    --gray-light:#E8E4DC;--gray-mid:#C8C4BC;--gray-text:#6B6760;
+    --text-dark:#1A1A1A;
+    --accept-green:#1A6B3A;--accept-green-dark:#155A30;
+    --reject-red:#8B1A1A;--reject-red-dark:#6F1414;
+    --white:#ffffff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Source Sans 3',sans-serif;font-weight:400;color:var(--text-dark);background:var(--cream);line-height:1.6;}
+  nav{background:var(--slate);border-bottom:3px solid var(--maroon);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:72px;}
+  .nav-logo img{height:44px;display:block;}
+  .nav-label{color:rgba(255,255,255,0.6);font-size:13px;font-weight:500;letter-spacing:0.5px;}
+  .page-header{background:var(--slate);padding:48px 80px 40px;margin-top:0;}
+  .page-header .eyebrow{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--tan);margin-bottom:12px;}
+  .page-header h1{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:12px;}
+  .page-header p{font-size:15px;color:rgba(255,255,255,0.65);line-height:1.7;max-width:640px;}
+  .trust-bar{padding:12px 80px;display:flex;align-items:center;gap:36px;}
+  body.accept-mode .trust-bar{background:var(--accept-green);}
+  body.reject-mode .trust-bar{background:var(--reject-red);}
+  .trust-item{display:flex;align-items:center;gap:8px;white-space:nowrap;color:rgba(255,255,255,0.92);font-size:13px;font-weight:600;}
+  .trust-dot{width:4px;height:4px;background:rgba(255,255,255,0.4);border-radius:50%;}
+  .main-wrap{max-width:900px;margin:48px auto;padding:0 24px 80px;}
+  .card{background:var(--white);border:1px solid var(--gray-mid);border-radius:8px;overflow:hidden;margin-bottom:24px;}
+  .card-header{background:var(--slate);padding:18px 28px;display:flex;align-items:center;gap:16px;}
+  .card-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);flex-shrink:0;}
+  body.accept-mode .card-num{background:var(--accept-green);}
+  body.reject-mode .card-num{background:var(--reject-red);}
+  .card-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--white);}
+  .card-sub{font-size:13px;color:rgba(255,255,255,0.55);margin-top:2px;}
+  .card-body{padding:32px 28px;}
+  .detail-table{width:100%;border-collapse:collapse;margin-bottom:0;}
+  .detail-table tr td{padding:8px 16px;font-size:14px;border-bottom:1px solid var(--gray-light);}
+  .detail-table tr:last-child td{border-bottom:none;}
+  .detail-table tr td:first-child{font-weight:600;color:#1B3A6B;background-color:#F4F6F9;width:40%;white-space:nowrap;}
+  .detail-table tr td:last-child{color:var(--text-dark);}
+  .highlight-row td{background-color:#FFF8EC !important;}
+  .highlight-row td:last-child{font-weight:700;font-size:16px;}
+  body.accept-mode .highlight-row td:last-child{color:var(--accept-green);}
+  body.reject-mode .highlight-row td:last-child{color:var(--gray-text);text-decoration:line-through;}
+  .fg{display:grid;gap:20px;}
+  .fg.c2{grid-template-columns:1fr 1fr;}
+  .fg.c1{grid-template-columns:1fr;}
+  .fgp{display:flex;flex-direction:column;gap:6px;}
+  .fgp label{font-size:13px;font-weight:600;color:var(--slate);}
+  .fgp label .req{color:var(--maroon);margin-left:2px;}
+  .fgp label .opt{color:var(--gray-text);font-weight:400;margin-left:6px;font-size:12px;}
+  .fgp input,.fgp select,.fgp textarea{width:100%;padding:11px 14px;border:1.5px solid var(--gray-mid);border-radius:4px;font-size:15px;font-family:'Source Sans 3',sans-serif;color:var(--text-dark);background:var(--white);outline:none;transition:border-color 0.2s;}
+  body.accept-mode .fgp input:focus,body.accept-mode .fgp select:focus,body.accept-mode .fgp textarea:focus{border-color:var(--accept-green);box-shadow:0 0 0 3px rgba(26,107,58,0.10);}
+  body.reject-mode .fgp input:focus,body.reject-mode .fgp select:focus,body.reject-mode .fgp textarea:focus{border-color:var(--reject-red);box-shadow:0 0 0 3px rgba(139,26,26,0.10);}
+  .fgp textarea{resize:vertical;min-height:100px;}
+  .ferr{font-size:12px;color:#C0392B;display:none;}
+  .fgp.herr .ferr{display:block;}
+  .fgp.herr input,.fgp.herr select,.fgp.herr textarea{border-color:#C0392B;}
+  .next-steps-box{background:var(--tan-pale);border-left:3px solid var(--tan);padding:18px 22px;margin-bottom:24px;border-radius:0 4px 4px 0;}
+  .next-steps-box h3{font-family:'Playfair Display',serif;font-size:16px;color:var(--slate);margin-bottom:10px;}
+  .next-steps-box ul{margin:0;padding-left:18px;}
+  .next-steps-box li{font-size:13px;color:var(--gray-text);line-height:1.7;margin-bottom:4px;}
+  .legal-box{background:var(--tan-pale);border:1px solid var(--gray-mid);border-radius:6px;padding:20px 24px;margin-bottom:24px;}
+  .legal-box p{font-size:13px;color:var(--gray-text);line-height:1.75;}
+  .submit-btn{color:var(--white);border:none;padding:18px 56px;font-size:16px;font-weight:700;border-radius:3px;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all 0.2s;width:100%;}
+  body.accept-mode .submit-btn{background:var(--accept-green);}
+  body.accept-mode .submit-btn:hover{background:var(--accept-green-dark);}
+  body.reject-mode .submit-btn{background:var(--reject-red);}
+  body.reject-mode .submit-btn:hover{background:var(--reject-red-dark);}
+  .submit-btn:disabled{background:var(--gray-mid)!important;cursor:not-allowed;}
+  .switch-link{text-align:center;font-size:13px;color:var(--gray-text);margin-top:8px;}
+  .switch-link a{color:var(--slate);text-decoration:underline;font-weight:600;}
+  .switch-link a:hover{color:var(--maroon);}
+  .success-box{display:none;text-align:center;padding:64px 32px;background:var(--white);border:1px solid var(--gray-mid);border-radius:8px;}
+  .success-box.show{display:block;}
+  .success-icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px;color:var(--white);}
+  body.accept-mode .success-icon{background:var(--accept-green);}
+  body.reject-mode .success-icon{background:var(--reject-red);}
+  .success-box h2{font-family:'Playfair Display',serif;font-size:32px;color:var(--slate);margin-bottom:16px;}
+  .success-box p{font-size:16px;color:var(--gray-text);line-height:1.7;max-width:520px;margin:0 auto 12px;}
+  .error-page{display:none;text-align:center;padding:64px 32px;background:var(--white);border:1px solid var(--gray-mid);border-radius:8px;}
+  .error-page.show{display:block;}
+  .error-page h2{font-family:'Playfair Display',serif;font-size:28px;color:var(--maroon);margin-bottom:16px;}
+  .error-page p{font-size:15px;color:var(--gray-text);line-height:1.7;max-width:520px;margin:0 auto 12px;}
+  footer{background:var(--slate-dark);padding:32px 80px;display:flex;align-items:center;justify-content:space-between;border-top:3px solid var(--maroon);}
+  .footer-left p{font-size:13px;color:rgba(255,255,255,0.38);}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .card{animation:fadeUp 0.5s ease both;}
+  .card:nth-child(1){animation-delay:0.1s;}
+  .card:nth-child(2){animation-delay:0.2s;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <img src="https://www.dropbox.com/scl/fi/s8devubl7bm9mlvzby9gr/AMKO-Capital-Tagline.jpg?rlkey=00ia3pmw8ki3qq7ta9vktyblu&st=r3cgyips&raw=1" alt="AMKO Capital" />
+  </div>
+  <span class="nav-label">Applicant Decision Portal</span>
+</nav>
+
+<div class="page-header">
+  <div class="eyebrow">AMKO Lease Advantage</div>
+  <h1 id="pageTitle">Confirm Your Decision</h1>
+  <p id="pageSubtitle">Please review the lease award details below and confirm your decision.</p>
+</div>
+
+<div class="trust-bar">
+  <div class="trust-item">&#10003; Secure Confirmation</div><div class="trust-dot"></div>
+  <div class="trust-item">&#10003; Audit Trail Recorded</div><div class="trust-dot"></div>
+  <div class="trust-item">&#10003; AMKO Capital — Municipal Lease Program</div>
+</div>
+
+<div class="main-wrap">
+
+  <div class="success-box" id="successBox">
+    <div class="success-icon" id="successIcon">&#10003;</div>
+    <h2 id="successTitle">Decision Recorded</h2>
+    <p id="successMsg1">Your decision has been received by AMKO Capital and a confirmation has been sent to your email.</p>
+    <p id="successMsg2">You may now close this window.</p>
+  </div>
+
+  <div class="error-page" id="errorPage">
+    <h2>Invalid Decision Link</h2>
+    <p>This link appears to be missing required information. Please return to the original award notification email and click ACCEPT or REJECT.</p>
+    <p>If the issue persists, please contact AMKO Capital directly.</p>
+  </div>
+
+  <div id="formContent">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-num">1</div>
+        <div>
+          <div class="card-title">Lease Award Summary</div>
+          <div class="card-sub">Please verify these details match the award notification email</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="detail-table">
+          <tr><td>Request ID</td><td id="dRequestID">—</td></tr>
+          <tr><td>Entity Name</td><td id="dEntityName">—</td></tr>
+          <tr><td>Lease Amount</td><td id="dLeaseAmount">—</td></tr>
+          <tr><td>Asset / Project</td><td id="dLeasePurpose">—</td></tr>
+          <tr><td>Lease Term</td><td id="dLeaseTerm">—</td></tr>
+          <tr><td>Winning Bank</td><td id="dWinningBank">—</td></tr>
+          <tr class="highlight-row"><td>Winning Rate</td><td id="dWinningRate">—</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-num">2</div>
+        <div>
+          <div class="card-title" id="confirmCardTitle">Confirm Acceptance</div>
+          <div class="card-sub" id="confirmCardSub">Provide your name to complete the confirmation</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="next-steps-box" id="nextStepsBox">
+          <h3 id="nextStepsTitle">What happens next</h3>
+          <ul id="nextStepsList"></ul>
+        </div>
+
+        <div class="fg c2" style="margin-bottom:20px;">
+          <div class="fgp" id="ffg-confirmerName">
+            <label>Your Name <span class="req">*</span></label>
+            <input type="text" id="fConfirmerName" placeholder="First and last name" />
+            <div class="ferr">Please enter your name</div>
+          </div>
+          <div class="fgp" id="ffg-confirmerTitle">
+            <label>Your Title <span class="opt">(optional)</span></label>
+            <input type="text" id="fConfirmerTitle" placeholder="e.g. City Administrator" />
+          </div>
+        </div>
+
+        <div class="fgp" style="margin-bottom:20px;" id="notesGroup">
+          <label id="notesLabel">Notes <span class="opt">(optional)</span></label>
+          <textarea id="fNotes" rows="4" placeholder=""></textarea>
+        </div>
+
+        <div class="legal-box">
+          <p id="legalText"></p>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="fSubmit()">Confirm Decision</button>
+
+        <div class="switch-link">
+          <span id="switchPrompt"></span>
+          <a href="#" id="switchLink" onclick="fSwitchDecision(event)">Switch decision</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-left">
+    <p>&copy; 2026 AMKO Capital, LLC. All rights reserved. &nbsp;&middot;&nbsp; AMKO Lease Advantage</p>
+  </div>
+</footer>
+
+<script>
+  const FLOW_URL = 'PASTE_APPLICANT_DECISION_FLOW_HTTP_TRIGGER_URL_HERE';
+
+  function getParam(name) {
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name) || '';
+  }
+
+  function formatCurrency(val) {
+    const num = parseFloat(val);
+    if (isNaN(num) || num <= 0) return '—';
+    return '$' + num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+  }
+
+  function formatTerm(val) {
+    const num = parseFloat(val);
+    if (isNaN(num) || num <= 0) return '—';
+    return num + ' years';
+  }
+
+  function formatRate(val) {
+    const num = parseFloat(val);
+    if (isNaN(num) || num <= 0) return '—';
+    return num.toFixed(2) + '%';
+  }
+
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val || '—';
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const decision = (getParam('decision') || '').toLowerCase();
+    const requestID = getParam('requestID');
+
+    if ((decision !== 'accept' && decision !== 'reject') || !requestID) {
+      document.getElementById('formContent').style.display = 'none';
+      document.getElementById('errorPage').classList.add('show');
+      return;
+    }
+
+    document.body.classList.add(decision === 'accept' ? 'accept-mode' : 'reject-mode');
+
+    setText('dRequestID', requestID);
+    setText('dEntityName', getParam('entityName'));
+    setText('dLeaseAmount', formatCurrency(getParam('leaseAmount')));
+    setText('dLeasePurpose', getParam('leasePurpose'));
+    setText('dLeaseTerm', formatTerm(getParam('leaseTerm')));
+    setText('dWinningBank', getParam('winningBank'));
+    setText('dWinningRate', formatRate(getParam('winningRate')));
+
+    if (decision === 'accept') {
+      document.getElementById('pageTitle').textContent = 'Accept Lease Award';
+      document.getElementById('pageSubtitle').textContent = 'You are confirming your entity\'s acceptance of this lease award. Please review the details below and complete the confirmation.';
+      document.getElementById('confirmCardTitle').textContent = 'Confirm Acceptance';
+      document.getElementById('confirmCardSub').textContent = 'Provide your name to complete the confirmation';
+      document.getElementById('nextStepsTitle').textContent = 'What happens after you confirm';
+      document.getElementById('nextStepsList').innerHTML =
+        '<li>AMKO Capital will be notified of your acceptance and begin documentation preparation.</li>' +
+        '<li>The winning bank will be notified to begin its closing process.</li>' +
+        '<li>Other participating banks will be informed that the solicitation has been awarded (no rate details disclosed).</li>' +
+        '<li>You will receive a confirmation email with a record of this decision.</li>';
+      document.getElementById('legalText').innerHTML =
+        'By clicking <strong>Confirm Decision</strong>, you confirm that you are authorized to accept this lease award on behalf of your entity. ' +
+        'AMKO Capital is authorized to proceed with documentation based on the winning bank\'s rate shown above. ' +
+        'A timestamped record of this decision will be retained for the file.';
+      document.getElementById('submitBtn').textContent = '\u2713  Confirm Acceptance';
+      document.getElementById('switchPrompt').textContent = 'Did you mean to reject this award? ';
+      document.getElementById('notesLabel').innerHTML = 'Notes <span class="opt">(optional)</span>';
+      document.getElementById('fNotes').placeholder = 'Any internal notes or comments regarding this acceptance...';
+    } else {
+      document.getElementById('pageTitle').textContent = 'Reject Lease Award';
+      document.getElementById('pageSubtitle').textContent = 'You are confirming your entity\'s rejection of this lease award. Please review the details below and complete the confirmation.';
+      document.getElementById('confirmCardTitle').textContent = 'Confirm Rejection';
+      document.getElementById('confirmCardSub').textContent = 'Provide your name and, if you wish, a reason';
+      document.getElementById('nextStepsTitle').textContent = 'What happens after you confirm';
+      document.getElementById('nextStepsList').innerHTML =
+        '<li>AMKO Capital will be notified that this solicitation has not been awarded.</li>' +
+        '<li>All participating banks will be informed that the solicitation has been declined (no further detail disclosed).</li>' +
+        '<li>You will receive a confirmation email with a record of this decision.</li>' +
+        '<li>If circumstances change, you may contact AMKO Capital to discuss reopening the request.</li>';
+      document.getElementById('legalText').innerHTML =
+        'By clicking <strong>Confirm Decision</strong>, you confirm that you are authorized to reject this lease award on behalf of your entity. ' +
+        'No documentation will proceed and all participating banks will be notified that the solicitation has been declined. ' +
+        'A timestamped record of this decision will be retained for the file.';
+      document.getElementById('submitBtn').textContent = '\u2715  Confirm Rejection';
+      document.getElementById('switchPrompt').textContent = 'Did you mean to accept this award? ';
+      document.getElementById('notesLabel').innerHTML = 'Reason for Rejection <span class="opt">(optional)</span>';
+      document.getElementById('fNotes').placeholder = 'If you wish, briefly share why this award is being declined. This helps AMKO Capital improve future solicitations.';
+    }
+  });
+
+  function fSwitchDecision(evt) {
+    evt.preventDefault();
+    const current = (getParam('decision') || '').toLowerCase();
+    const target = current === 'accept' ? 'reject' : 'accept';
+    const url = new URL(window.location.href);
+    url.searchParams.set('decision', target);
+    window.location.href = url.toString();
+  }
+
+  function fChk(elId, fgId) {
+    const el = document.getElementById(elId);
+    const fg = document.getElementById(fgId);
+    if (!el || !fg) return true;
+    if (!el.value.trim()) { fg.classList.add('herr'); return false; }
+    fg.classList.remove('herr');
+    return true;
+  }
+
+  function fSubmit() {
+    let ok = true;
+    if (!fChk('fConfirmerName', 'ffg-confirmerName')) ok = false;
+    if (!ok) return;
+
+    const btn = document.getElementById('submitBtn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
+    const decision = (getParam('decision') || '').toLowerCase();
+
+    const payload = {
+      decision: decision,
+      requestID: getParam('requestID'),
+      entityName: getParam('entityName'),
+      leaseAmount: getParam('leaseAmount'),
+      leaseTerm: getParam('leaseTerm'),
+      leasePurpose: getParam('leasePurpose'),
+      winningBank: getParam('winningBank'),
+      winningRate: getParam('winningRate'),
+      confirmerName: document.getElementById('fConfirmerName').value.trim(),
+      confirmerTitle: document.getElementById('fConfirmerTitle').value.trim(),
+      notes: document.getElementById('fNotes').value.trim(),
+      decisionTimestamp: new Date().toISOString()
+    };
+
+    fetch(FLOW_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      document.getElementById('formContent').style.display = 'none';
+
+      if (decision === 'accept') {
+        document.getElementById('successTitle').textContent = 'Acceptance Recorded';
+        document.getElementById('successMsg1').textContent = 'Your acceptance of this lease award has been recorded. AMKO Capital will be in touch shortly to begin documentation.';
+      } else {
+        document.getElementById('successIcon').innerHTML = '&#10005;';
+        document.getElementById('successTitle').textContent = 'Rejection Recorded';
+        document.getElementById('successMsg1').textContent = 'Your rejection of this lease award has been recorded. All participating banks will be notified that the solicitation has been declined.';
+      }
+
+      document.getElementById('successBox').classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    })
+    .catch(() => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+      alert('There was an error recording your decision. Please try again or contact AMKO Capital at info@amkocap.com');
+    });
+  }
+</script>
+</body>
+</html>
