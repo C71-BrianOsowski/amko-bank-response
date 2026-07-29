@@ -117,7 +117,31 @@
     <p>A confirmation has been sent to your email address. AMKO Capital will be in touch following the submission deadline.</p>
   </div>
 
-  <div class="card" id="formContent">
+  <div class="card" id="accessGate">
+    <div class="card-header">
+      <div class="card-num">&#128274;</div>
+      <div>
+        <div class="card-title">Enter Your Access Code</div>
+        <div class="card-sub">This bid page is limited to invited institutions</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p style="font-size:14px;color:var(--gray-text);margin-bottom:20px;line-height:1.7;">
+        To protect this solicitation, AMKO Capital requires the access code included in your invitation before you can view the opportunity and submit a bid. Please enter it below to continue.
+      </p>
+      <div class="fg c1" style="max-width:360px;">
+        <div class="fgp" id="ffg-accessCode">
+          <label>Access Code <span class="req">*</span></label>
+          <input type="text" id="fAccessCode" placeholder="Enter your code" autocomplete="off" />
+          <div class="ferr" id="accessCodeErr">That access code isn&rsquo;t valid for this opportunity. Please check your invitation and try again.</div>
+        </div>
+      </div>
+      <div style="height:24px;"></div>
+      <button class="submit-btn" id="verifyBtn" onclick="fVerifyCode()">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <div class="card" id="formContent" style="display:none;">
     <div class="card-header">
       <div class="card-num">1</div>
       <div>
@@ -138,7 +162,7 @@
     </div>
   </div>
 
-  <div class="card" id="formContent2">
+  <div class="card" id="formContent2" style="display:none;">
     <div class="card-header">
       <div class="card-num">2</div>
       <div>
@@ -174,7 +198,7 @@
     </div>
   </div>
 
-  <div class="card" id="formContent3">
+  <div class="card" id="formContent3" style="display:none;">
     <div class="card-header">
       <div class="card-num">3</div>
       <div>
@@ -232,6 +256,17 @@
 <script>
   const FLOW_URL = 'https://default4b7f706d9033497ab32a4d92301020.93.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4c1f0b257fa34ff3a0f5b158f4a170f8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KnB4wkbYOeRcotEY5nAgRNg6oHUQJ7M5B2MYJ6_7oeM';
 
+  // Flow that validates the access code against the "Platform Access Codes" SharePoint list
+  // and logs the attempt to "Platform Access Log". It must return a JSON body (via a
+  // "Respond to a PowerApp or flow" / HTTP Response action) indicating whether the code is
+  // valid, e.g. { "valid": true }. Defaults to the same flow as the bid submission — the
+  // request carries action:'verifyAccessCode' so a single flow can branch on it, or point
+  // this at a dedicated validation flow.
+  const ACCESS_FLOW_URL = FLOW_URL;
+
+  // Holds the access code once verified, so it can travel with the bid submission.
+  let verifiedAccessCode = '';
+
   function getParam(name) {
     const url = new URL(window.location.href);
     return url.searchParams.get(name) || '';
@@ -277,7 +312,74 @@
     document.getElementById('dPaymentFrequency').textContent = paymentFrequency || '—';
     document.getElementById('dLeasePurpose').textContent = leasePurpose || '—';
     document.getElementById('dResponseDeadline').textContent = responseDeadline || '—';
+
+    const codeInput = document.getElementById('fAccessCode');
+    if (codeInput) {
+      codeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); fVerifyCode(); }
+      });
+      codeInput.focus();
+    }
   });
+
+  function fVerifyCode() {
+    const codeEl = document.getElementById('fAccessCode');
+    const fg = document.getElementById('ffg-accessCode');
+    const errEl = document.getElementById('accessCodeErr');
+    const code = codeEl.value.trim();
+
+    if (!code) {
+      errEl.textContent = 'Please enter your access code';
+      fg.classList.add('herr');
+      return;
+    }
+    fg.classList.remove('herr');
+
+    const btn = document.getElementById('verifyBtn');
+    const originalText = btn.innerHTML;
+    btn.textContent = 'Verifying...';
+    btn.disabled = true;
+
+    const payload = {
+      action: 'verifyAccessCode',
+      requestID: getParam('requestID'),
+      entityName: getParam('entityName'),
+      bankName: getParam('bankName'),
+      accessCode: code
+    };
+
+    fetch(ACCESS_FLOW_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(async (res) => {
+      let data = {};
+      try { data = await res.json(); } catch (e) { data = {}; }
+      const valid = data.valid === true || data.valid === 'true' ||
+                    data.status === 'valid' || data.access === 'granted';
+
+      if (valid) {
+        verifiedAccessCode = code;
+        document.getElementById('accessGate').style.display = 'none';
+        document.getElementById('formContent').style.display = '';
+        document.getElementById('formContent2').style.display = '';
+        document.getElementById('formContent3').style.display = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        errEl.textContent = 'That access code isn’t valid for this opportunity. Please check your invitation and try again.';
+        fg.classList.add('herr');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    })
+    .catch(() => {
+      errEl.textContent = 'We could not verify your access code just now. Please try again or contact AMKO Capital at info@amkocap.com';
+      fg.classList.add('herr');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    });
+  }
 
   function fChk(elId, fgId) {
     const el = document.getElementById(elId);
@@ -321,6 +423,8 @@
     btn.disabled = true;
 
     const payload = {
+      action: 'submitBid',
+      accessCode: verifiedAccessCode,
       requestID: getParam('requestID'),
       entityName: getParam('entityName'),
       leaseAmount: getParam('leaseAmount'),
