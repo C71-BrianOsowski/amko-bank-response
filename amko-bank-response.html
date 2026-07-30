@@ -193,9 +193,9 @@
       <div class="rate-box">
         <label>Purchase Rate (% Annual Interest) <span style="color:var(--maroon);">*</span></label>
         <div class="rate-input-wrap">
-          <input type="number" class="rate-input" id="fRate" placeholder="0.00" step="0.01" min="0" max="99" />
+          <input type="text" inputmode="decimal" class="rate-input" id="fRate" placeholder="0.000" oninput="fFmtRate(this)" onblur="fBlurRate(this)" />
           <span class="rate-pct">%</span>
-          <span class="rate-hint">Enter your rate as a percentage (e.g. 4.75)</span>
+          <span class="rate-hint">Enter your rate as a percentage (e.g. 4.750)</span>
         </div>
         <div class="ferr" id="rateErr" style="margin-top:8px;">Please enter your proposed rate</div>
       </div>
@@ -255,6 +255,20 @@
     const cleaned = String(val).replace(/[^0-9.]/g, '');
     if (cleaned === '') return NaN;
     return parseFloat(cleaned);
+  }
+
+  function fFmtRate(el) {
+    let v = el.value.replace(/[^0-9.]/g, '');
+    const firstDot = v.indexOf('.');
+    if (firstDot !== -1) {
+      v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, '');
+    }
+    el.value = v;
+  }
+
+  function fBlurRate(el) {
+    const n = parseFloat(el.value);
+    if (!isNaN(n) && n > 0 && n < 100) el.value = n.toFixed(3);
   }
 
   function fFmtPhone(el) {
@@ -336,7 +350,7 @@
 
     const rate = document.getElementById('fRate').value;
     const rateErr = document.getElementById('rateErr');
-    if (!rate || isNaN(parseFloat(rate)) || parseFloat(rate) <= 0) {
+    if (!rate || isNaN(parseFloat(rate)) || parseFloat(rate) <= 0 || parseFloat(rate) >= 100) {
       rateErr.style.display = 'block';
       ok = false;
     } else {
