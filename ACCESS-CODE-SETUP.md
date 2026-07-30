@@ -34,18 +34,31 @@ that's 5 banks or 500.
 
 ## Piece 1 — Invitation email loop  ← today's work
 **Flow:** `AMKO Lease - Application Processing v2` → **Loop – Send Bank Opportunity Emails**
+**Token list:** `Platform Access Codes` (rename to `Bank Access Codes` if you like — safe,
+cosmetic; Power Automate references it by internal ID). Applicant codes live separately in
+`Approved Entities`, so this list is free to be bank-specific.
 
 Inside the loop, for each bank, add these before the email is composed:
 
 1. **Generate the token** — add a **Compose** action named `BankToken`
    - Expression: `guid()`   _(want it longer? `concat(guid(), guid())`)_
 
-2. **Store the token** — add **Create item** (SharePoint) in **Platform Access Codes**
-   - `Token` = `outputs('Compose_-_BankToken')`  (or Compose dynamic content)
-   - `BankName` / `ContactEmail` = current item in the loop
-   - `RequestID` = this opportunity's request ID
-   - `Status` = `Active`
-   - `Created` = `utcNow()`
+2. **Store the token** — add **Create item** (SharePoint) in **Platform Access Codes**,
+   mapping onto its EXISTING columns:
+
+   | Column | Value |
+   |---|---|
+   | `AccessCode` | `outputs('Compose_-_BankToken')`  ← the token the link checks against |
+   | `Organization` | current bank's **Bank Name** |
+   | `PersonName` | current bank's **ContactName** |
+   | `Email` | current bank's **ContactEmail** |
+   | `Active` | `Yes` |
+   | `DateIssued` | expression `utcNow()` |
+   | `ExpiresOn` | *(optional)* submission deadline, or blank |
+   | `Notes` | *(optional)* `Bank bid access – <RequestID>` for traceability |
+
+   No RequestID column is needed — the token is unique on its own. (Add one later only
+   if you want a link to work for just one specific opportunity.)
 
 3. **Put the token in the link** — in **Compose – BankOpportunityEmailBody**, build the URL as:
    ```
@@ -59,9 +72,9 @@ Inside the loop, for each bank, add these before the email is composed:
 **Flow:** `AMKO - Validate Access Code` (the one with manual → Get items → Condition → Response)
 
 - **Get items** from **Platform Access Codes**
-  - Filter Query: `Token eq '@{triggerBody()?['token']}' and Status eq 'Active'`
+  - Filter Query: `AccessCode eq '@{triggerBody()?['token']}' and Active eq 1`
   - Top Count: 1
-  - (optional, tighter) also require the RequestID to match
+  - (optional, tighter) also check `ExpiresOn` is in the future, or match the RequestID
 - **Create item** in **Platform Access Log** — record token, bank, requestID, result, timestamp
 - **Condition:** `length(body('Get_items')?['value'])` is greater than `0`
   - **True** → **Response**, body: `{ "valid": true }`
