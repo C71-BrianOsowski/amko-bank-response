@@ -117,6 +117,13 @@
     <p>A confirmation has been sent to your email address. AMKO Capital will be in touch following the submission deadline.</p>
   </div>
 
+  <div class="success-box" id="deniedBox">
+    <div class="success-icon" style="background:var(--maroon);">&#10007;</div>
+    <h2>Access Not Authorized</h2>
+    <p>This bid submission link is invalid, expired, or has already been used.</p>
+    <p>Each participating institution receives a unique secure link by email. Please use the link from your invitation, or contact AMKO Capital at info@amkocap.com for assistance.</p>
+  </div>
+
   <div class="card" id="formContent">
     <div class="card-header">
       <div class="card-num">1</div>
@@ -261,7 +268,17 @@
     el.value = num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
   }
 
+  function showDenied() {
+    document.getElementById('formContent').style.display = 'none';
+    document.getElementById('formContent2').style.display = 'none';
+    document.getElementById('formContent3').style.display = 'none';
+    document.getElementById('successBox').classList.remove('show');
+    document.getElementById('deniedBox').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
+    if (!getParam('accessCode')) { showDenied(); return; }
     const requestID = getParam('requestID');
     const entityName = getParam('entityName');
     const leaseAmount = getParam('leaseAmount');
@@ -321,6 +338,7 @@
     btn.disabled = true;
 
     const payload = {
+      accessCode: getParam('accessCode'),
       requestID: getParam('requestID'),
       entityName: getParam('entityName'),
       leaseAmount: getParam('leaseAmount'),
@@ -342,7 +360,12 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-    .then(() => {
+    .then((res) => {
+      if (res.status === 401 || res.status === 403) {
+        showDenied();
+        return;
+      }
+      if (!res.ok) throw new Error('Submission failed with status ' + res.status);
       document.getElementById('formContent').style.display = 'none';
       document.getElementById('formContent2').style.display = 'none';
       document.getElementById('formContent3').style.display = 'none';
