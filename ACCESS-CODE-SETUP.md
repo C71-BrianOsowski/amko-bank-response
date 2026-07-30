@@ -1,87 +1,91 @@
-# Bank Bid Access Code — Power Automate + SharePoint Setup
+# Bank Bid Access — Build Plan & Daily Status
 
-This is the backend setup for the access-code gate on `amko-bank-response.html`.
-It mirrors how an **applicant** gets into the application: they enter a code, a
-Power Automate flow checks that code against a SharePoint list, and access is
-granted only if it matches. The bank bid page works the same way.
+_Open this first each day. It's the running record of where we are, what's next,_
+_and the exact steps to do in Power Automate (Claude can't reach your tenant, so_
+_this doc is the source of truth)._
 
-## How it works end to end
+Last updated: 2026-07-30
 
-1. A bank opens the bid link and sees only an **"Enter Your Access Code"** card —
-   the opportunity details and bid form stay hidden.
-2. They enter their code and click **Continue**. The page POSTs the code to the flow.
-3. The flow looks the code up in SharePoint, writes the attempt to **Platform
-   Access Log**, and responds `{ "valid": true }` or `{ "valid": false }`.
-4. Valid → the bid form unlocks. The verified code is then included in the bid
-   submission so it's recorded with the bid.
+---
 
-The webpage does **not** need to know how codes are scoped — it just sends the
-code plus the opportunity context and trusts the flow's yes/no. No page changes
-are needed to complete this; only the flow + SharePoint steps below.
+## The approach we chose: link token (not a typed code)
 
-## 1. SharePoint — where the bank code lives
+Each bank's invitation link carries a long random **token** in the URL. The bank
+just clicks the link — nothing to type. The bid page silently checks the token
+against SharePoint and opens the form only if it matches. It's unguessable, it's
+zero-friction, and it scales: every invite auto-generates its own token, whether
+that's 5 banks or 500.
 
-The direct parallel to `AccessCode` on the **Approved Entities** list (used for
-applicants) is an `AccessCode` column on the **Banks** list:
+> A typed access code is the fallback if you ever want banks to enter something
+> by hand — but for growth, the token is the better fit.
 
-- Add a single-line text column **`AccessCode`** to the **Banks** list.
-- Give each active bank a code, e.g. `AMKO-FNB-001`.
+---
 
-> Prefer one central list instead? Use **Platform Access Codes** — the flow steps
-> are identical, just point "Get items" at that list. That's the better choice if
-> a bank needs different codes per opportunity or codes that expire.
+## Where we are — check off as you go
 
-## 2. Power Automate — the verify flow
+- [x] Bid page gates the form until access is verified _(on branch `claude/bank-bid-access-code-rgntzc`)_
+- [ ] **Piece 1 — Invitation loop: generate token, store it, append `&token=` to the link**  ← YOU ARE HERE
+- [ ] Piece 2 — Validate flow (`AMKO - Validate Access Code`): match on token, return valid/invalid
+- [ ] Piece 3 — Switch bid page from typed-code entry to silent token check _(Claude will do on your go)_
+- [ ] End-to-end test: send a real invite, click the link, confirm the form opens
+- [ ] Decide: expire tokens after the submission deadline? (optional)
 
-Easiest path: **Save As** a copy of your existing applicant verify flow and swap
-the list. Otherwise, build it like this:
+---
 
-**Trigger:** *When an HTTP request is received* (the manual trigger the page
-already calls). The page sends:
+## Piece 1 — Invitation email loop  ← today's work
+**Flow:** `AMKO Lease - Application Processing v2` → **Loop – Send Bank Opportunity Emails**
 
-```json
-{
-  "action": "verifyAccessCode",
-  "accessCode": "AMKO-FNB-001",
-  "requestID": "REQ-1001",
-  "entityName": "City of Fargo"
-}
-```
+Inside the loop, for each bank, add these before the email is composed:
 
-**Steps:**
+1. **Generate the token** — add a **Compose** action named `BankToken`
+   - Expression: `guid()`   _(want it longer? `concat(guid(), guid())`)_
 
-1. **Condition** — `action` is equal to `verifyAccessCode`. (Only needed if this
-   flow also handles bid submission; see section 3.)
-2. **Get items** — Site: *AMKO Advisors Team Site*, List: **Banks**
-   - *Filter Query:* `AccessCode eq '@{triggerBody()?['accessCode']}' and Active eq 1`
-     (use `Status eq 'Active'` if that's your column)
-   - *Top Count:* 1
-3. **Create item** in **Platform Access Log** — record the code, the matched bank
-   name (from Get items, if any), `requestID`, the result, and the timestamp.
-4. **Condition** — `length(body('Get_items')?['value'])` is greater than 0
-   - **If yes** → *Respond to a PowerApp or flow* / *Response*: body `{ "valid": true }`
-   - **If no**  → *Respond to a PowerApp or flow* / *Response*: body `{ "valid": false }`
+2. **Store the token** — add **Create item** (SharePoint) in **Platform Access Codes**
+   - `Token` = `outputs('Compose_-_BankToken')`  (or Compose dynamic content)
+   - `BankName` / `ContactEmail` = current item in the loop
+   - `RequestID` = this opportunity's request ID
+   - `Status` = `Active`
+   - `Created` = `utcNow()`
 
-> **Important:** the reply MUST be a **Respond to a PowerApp or flow** (or HTTP
-> **Response**) action returning JSON. Your current bid flow returns `202 Accepted`
-> with no body, which is why the page treats any reply as success today. Without a
-> real JSON response the gate can't tell valid from invalid and **fails closed**
-> (nobody gets in) — so wire up the Response action before going live.
+3. **Put the token in the link** — in **Compose – BankOpportunityEmailBody**, build the URL as:
+   ```
+   https://<your-page-host>/amko-bank-response.html?requestID=<id>&entityName=<name>&token=@{outputs('Compose_-_BankToken')}
+   ```
+   (keep the other params you already pass; just add `&token=…`)
 
-## 3. Bid submission (your existing flow)
+---
 
-The bid POST now also carries `action: "submitBid"` and `accessCode`:
+## Piece 2 — Validate flow
+**Flow:** `AMKO - Validate Access Code` (the one with manual → Get items → Condition → Response)
 
-- If **one flow** handles both verify and submit, branch on `action` at the top.
-- If **separate flows**, the submit flow can ignore `action` and simply store
-  `accessCode` alongside the rest of the bid.
+- **Get items** from **Platform Access Codes**
+  - Filter Query: `Token eq '@{triggerBody()?['token']}' and Status eq 'Active'`
+  - Top Count: 1
+  - (optional, tighter) also require the RequestID to match
+- **Create item** in **Platform Access Log** — record token, bank, requestID, result, timestamp
+- **Condition:** `length(body('Get_items')?['value'])` is greater than `0`
+  - **True** → **Response**, body: `{ "valid": true }`
+  - **False** → **Response**, body: `{ "valid": false }`
+- The Response action MUST return JSON (a bare 202 with no body = the page can't
+  read it and stays locked).
 
-## Page contract (already implemented — no code changes required)
+---
 
-- **Verify request:** `{ action: "verifyAccessCode", accessCode, requestID, entityName }`
-- **Verify response expected:** `{ "valid": true }` or `{ "valid": false }`
-  (the page also accepts `status: "valid"` or `access: "granted"`)
-- **`ACCESS_FLOW_URL`** in the page defaults to the same URL as the bid
-  submission flow (`FLOW_URL`), distinguished by the `action` field. If you build
-  a dedicated verify flow, change `ACCESS_FLOW_URL` near the top of the page's
-  `<script>` to that flow's URL.
+## Piece 3 — Bid page (this repo)
+- Reads `token` from the URL and silently POSTs it to the validate flow on load.
+- Valid → the bid form shows. Invalid/missing → a locked message.
+- Right now the page shows a **typed-code** gate — Claude swaps it to the silent
+  token check once Pieces 1 & 2 exist. Just say the word.
+
+---
+
+## Page ↔ flow contract (so both sides agree)
+- **Validate request** the page sends: `{ action: "verifyAccessCode", token, requestID, entityName }`
+- **Validate response** the page expects: `{ "valid": true }` or `{ "valid": false }`
+- **`ACCESS_FLOW_URL`** near the top of the page's `<script>` = the Validate flow's trigger URL.
+
+---
+
+## Open decisions
+- Which list holds tokens: **Platform Access Codes** (recommended) or Bank Lease Responses?
+- Expire/mark-used tokens after the deadline? (nice-to-have, not required for v1)
