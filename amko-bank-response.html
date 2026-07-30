@@ -174,7 +174,7 @@
         </div>
         <div class="fgp" id="ffg-contactPhone">
           <label>Contact Phone <span class="req">*</span></label>
-          <input type="tel" id="fContactPhone" placeholder="(701) 555-0123" />
+          <input type="tel" id="fContactPhone" placeholder="(701) 555-0123" oninput="fFmtPhone(this)" />
           <div class="ferr">Please enter your phone number</div>
         </div>
       </div>
@@ -257,6 +257,15 @@
     return parseFloat(cleaned);
   }
 
+  function fFmtPhone(el) {
+    let d = el.value.replace(/\D/g, '');
+    if (d.length === 11 && d[0] === '1') d = d.slice(1);
+    d = d.slice(0, 10);
+    if (d.length > 6) el.value = '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6);
+    else if (d.length > 3) el.value = '(' + d.slice(0, 3) + ') ' + d.slice(3);
+    else el.value = d;
+  }
+
   function fFmtFee(el) {
     const raw = el.value.replace(/[^0-9.]/g, '');
     el.value = raw;
@@ -294,7 +303,11 @@
     if (bankName) document.getElementById('fBankName').value = bankName;
     if (contactName) document.getElementById('fContactName').value = contactName;
     if (contactEmail) document.getElementById('fContactEmail').value = contactEmail;
-    if (contactPhone) document.getElementById('fContactPhone').value = contactPhone;
+    if (contactPhone) {
+      const phoneEl = document.getElementById('fContactPhone');
+      phoneEl.value = contactPhone;
+      fFmtPhone(phoneEl);
+    }
 
     document.getElementById('dRequestID').textContent = requestID || '—';
     document.getElementById('dEntityName').textContent = entityName || '—';
