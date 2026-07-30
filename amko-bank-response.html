@@ -287,6 +287,15 @@
     const leasePurpose = getParam('leasePurpose');
     const responseDeadline = getParam('responseDeadline');
 
+    const bankName = getParam('bankName');
+    const contactName = getParam('contactName');
+    const contactEmail = getParam('contactEmail');
+    const contactPhone = getParam('contactPhone');
+    if (bankName) document.getElementById('fBankName').value = bankName;
+    if (contactName) document.getElementById('fContactName').value = contactName;
+    if (contactEmail) document.getElementById('fContactEmail').value = contactEmail;
+    if (contactPhone) document.getElementById('fContactPhone').value = contactPhone;
+
     document.getElementById('dRequestID').textContent = requestID || '—';
     document.getElementById('dEntityName').textContent = entityName || '—';
     document.getElementById('dLeaseAmount').textContent = leaseAmount ? formatCurrency(leaseAmount) : '—';
