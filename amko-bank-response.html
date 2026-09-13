@@ -222,7 +222,7 @@
         <label>Origination Fee <span style="color:var(--maroon);">*</span></label>
         <div class="rate-input-wrap">
           <span class="rate-pct">$</span>
-          <input type="text" class="rate-input" id="fFee" placeholder="0" oninput="fFmtFee(this)" onblur="fBlurFee(this)" value="0" />
+          <input type="text" inputmode="decimal" class="rate-input" id="fFee" placeholder="0" oninput="fFmtFee(this)" onblur="fBlurFee(this)" onfocus="this.select()" value="0" />
           <span class="rate-hint">One-time fee financed into the lease principal. Enter 0 if no fee.</span>
         </div>
         <div class="ferr" id="feeErr" style="margin-top:8px;">Please enter a valid fee amount (enter 0 for no fee)</div>
@@ -301,7 +301,8 @@
   }
 
   function fFmtFee(el) {
-    const raw = el.value.replace(/[^0-9.]/g, '');
+    let raw = el.value.replace(/[^0-9.]/g, '');
+    raw = raw.replace(/^0+(?=\d)/, '');
     el.value = raw;
   }
 
