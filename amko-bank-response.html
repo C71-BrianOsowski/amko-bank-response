@@ -63,6 +63,11 @@
   .rate-hint{font-size:13px;color:var(--gray-text);}
   .legal-box{background:var(--tan-pale);border:1px solid var(--gray-mid);border-radius:6px;padding:20px 24px;margin-bottom:24px;}
   .legal-box p{font-size:13px;color:var(--gray-text);line-height:1.75;}
+  .terms-box{background:var(--tan-pale);border:1px solid var(--gray-mid);border-radius:6px;padding:20px 24px;margin-bottom:24px;}
+  .terms-box .terms-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--slate);margin-bottom:10px;}
+  .terms-box p{font-size:13px;color:var(--gray-text);line-height:1.75;}
+  .terms-agree{display:flex;align-items:flex-start;gap:10px;margin-top:14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--slate);line-height:1.5;}
+  .terms-agree input[type="checkbox"]{margin-top:3px;width:16px;height:16px;flex-shrink:0;accent-color:var(--maroon);cursor:pointer;}
   .apr-info{background:#F4F6F9;border:1px solid var(--gray-mid);border-radius:6px;padding:14px 20px;margin-bottom:20px;}
   .apr-info summary{font-size:13px;font-weight:700;color:var(--slate);cursor:pointer;outline:none;list-style-position:inside;}
   .apr-info summary::marker{color:var(--maroon);}
@@ -115,6 +120,7 @@
     <h2>Bid Submitted Successfully</h2>
     <p>Thank you. Your rate bid has been received by AMKO Capital and recorded for this lease opportunity.</p>
     <p>A confirmation has been sent to your email address. AMKO Capital will be in touch following the submission deadline.</p>
+    <p>Your bid is subject to the Bid Terms you accepted (90-day rate hold from award date).</p>
   </div>
 
   <div class="success-box" id="deniedBox">
@@ -224,7 +230,16 @@
       <div class="legal-box">
         <p>By submitting this bid, your institution confirms that the rate and origination fee provided represent a genuine offer to purchase this tax-exempt municipal lease at the stated terms, subject to satisfactory review of the financial statements and execution of standard lease documentation. The origination fee, if any, will be financed into the total lease principal. AMKO Capital will rank bids on an all-in APR basis — combining the purchase rate and origination fee — and notify all participating institutions of the outcome following the submission deadline.</p>
       </div>
-      <button class="submit-btn" id="submitBtn" onclick="fSubmit()">Submit Rate Bid &rarr;</button>
+      <div class="terms-box" id="bidTermsBox">
+        <div class="terms-title">Bid Terms</div>
+        <p>By submitting a bid, the bidding institution agrees that its proposed rate and origination fee are firm for 90 days from the award date. Bids may be revised or withdrawn at any time before the response deadline; after the deadline, all bids are final. If the entity accepts the award within its 14-day acceptance window, the winning institution will honor the bid rate through closing, provided closing occurs within the 90-day hold period. Bid rankings shown to bidders are based on All-In APR (proposed rate plus origination fee). Winning bank and rate details are not disclosed to non-winning bidders.</p>
+        <label class="terms-agree" for="fTermsChk">
+          <input type="checkbox" id="fTermsChk" onchange="fTermsToggle()" />
+          <span>I am authorized to bind the bidding institution and agree to the Bid Terms above.</span>
+        </label>
+        <div class="ferr" id="termsErr" style="margin-top:8px;">Please agree to the Bid Terms to submit your bid.</div>
+      </div>
+      <button class="submit-btn" id="submitBtn" onclick="fSubmit()" disabled>Submit Rate Bid &rarr;</button>
     </div>
   </div>
 
@@ -332,6 +347,12 @@
     document.getElementById('dResponseDeadline').textContent = responseDeadline || '—';
   });
 
+  function fTermsToggle() {
+    const chk = document.getElementById('fTermsChk');
+    document.getElementById('submitBtn').disabled = !chk.checked;
+    if (chk.checked) document.getElementById('termsErr').style.display = 'none';
+  }
+
   function fChk(elId, fgId) {
     const el = document.getElementById(elId);
     const fg = document.getElementById(fgId);
@@ -367,6 +388,15 @@
       feeErr.style.display = 'none';
     }
 
+    const termsChk = document.getElementById('fTermsChk');
+    const termsErr = document.getElementById('termsErr');
+    if (!termsChk.checked) {
+      termsErr.style.display = 'block';
+      ok = false;
+    } else {
+      termsErr.style.display = 'none';
+    }
+
     if (!ok) return;
 
     const btn = document.getElementById('submitBtn');
@@ -388,7 +418,9 @@
       contactPhone: document.getElementById('fContactPhone').value,
       proposedRate: document.getElementById('fRate').value,
       originationFee: feeNum,
-      notes: document.getElementById('fNotes').value
+      notes: document.getElementById('fNotes').value,
+      termsAccepted: 'yes',
+      termsVersion: '2026-09-13'
     };
 
     fetch(FLOW_URL, {
@@ -410,7 +442,7 @@
     })
     .catch(() => {
       btn.textContent = 'Submit Rate Bid →';
-      btn.disabled = false;
+      btn.disabled = !document.getElementById('fTermsChk').checked;
       alert('There was an error submitting your bid. Please try again or contact AMKO Capital at info@amkocap.com');
     });
   }
