@@ -151,6 +151,11 @@
     </div>
   </div>
 
+  <div class="terms-box" id="closedBox" style="display:none;">
+    <div class="terms-title">Bidding Closed</div>
+    <p>The response period for this request closed on <span id="closedDeadline"></span>. Bids can no longer be submitted. If you believe this is an error, contact AMKO Capital at info@amkocap.com or (701)&nbsp;540-6821.</p>
+  </div>
+
   <div class="card" id="formContent2">
     <div class="card-header">
       <div class="card-num">2</div>
@@ -306,6 +311,46 @@
     el.value = num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
   }
 
+  function fParseDeadline(s) {
+    if (!s) return null;
+    const t = String(s).trim();
+    let y, m, d;
+    const iso = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    const us = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (iso) { y = +iso[1]; m = +iso[2]; d = +iso[3]; }
+    else if (us) { y = +us[3]; m = +us[1]; d = +us[2]; }
+    else {
+      const parsed = new Date(t);
+      if (isNaN(parsed)) return null;
+      y = parsed.getFullYear(); m = parsed.getMonth() + 1; d = parsed.getDate();
+    }
+    if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+    return { y: y, m: m, d: d };
+  }
+
+  function fCentralToday() {
+    try {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit'
+      }).format(new Date());
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function fCheckDeadline(responseDeadline) {
+    const dl = fParseDeadline(responseDeadline);
+    const today = fCentralToday();
+    if (!dl || !today) return;
+    const dlStr = dl.y + '-' + String(dl.m).padStart(2, '0') + '-' + String(dl.d).padStart(2, '0');
+    if (today <= dlStr) return;
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('closedDeadline').textContent = months[dl.m - 1] + ' ' + dl.d + ', ' + dl.y;
+    document.getElementById('formContent2').style.display = 'none';
+    document.getElementById('formContent3').style.display = 'none';
+    document.getElementById('closedBox').style.display = 'block';
+  }
+
   function showDenied() {
     document.getElementById('formContent').style.display = 'none';
     document.getElementById('formContent2').style.display = 'none';
@@ -345,6 +390,8 @@
     document.getElementById('dPaymentFrequency').textContent = paymentFrequency || '—';
     document.getElementById('dLeasePurpose').textContent = leasePurpose || '—';
     document.getElementById('dResponseDeadline').textContent = responseDeadline || '—';
+
+    fCheckDeadline(responseDeadline);
   });
 
   function fTermsToggle() {
