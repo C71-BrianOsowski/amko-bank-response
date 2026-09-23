@@ -109,7 +109,7 @@
 <div class="trust-bar">
   <div class="trust-item">&#10003; Secure Submission</div><div class="trust-dot"></div>
   <div class="trust-item">&#10003; Bid Confirmation Sent by Email</div><div class="trust-dot"></div>
-  <div class="trust-item">&#10003; Lowest Rate Wins</div><div class="trust-dot"></div>
+  <div class="trust-item">&#10003; Lowest All-In APR Wins</div><div class="trust-dot"></div>
   <div class="trust-item">&#10003; AMKO Capital — Municipal Lease Program</div>
 </div>
 
@@ -197,7 +197,7 @@
       <div class="card-num">3</div>
       <div>
         <div class="card-title">Your Rate Bid</div>
-        <div class="card-sub">Enter your institution's purchase rate and origination fee for this lease</div>
+        <div class="card-sub">Enter your institution's purchase rate and one-time fees for this lease</div>
       </div>
     </div>
     <div class="card-body">
@@ -213,27 +213,28 @@
       <details class="apr-info">
         <summary>How bids are ranked — APR methodology</summary>
         <div class="apr-info-body">
-          <p>AMKO Capital ranks bids on an <strong>all-in Annual Percentage Rate (APR)</strong> basis, combining the purchase rate and origination fee. A lower APR wins. The lowest-quoted rate does not necessarily win if that bid carries a higher origination fee.</p>
-          <p><strong>Calculation:</strong> The origination fee is amortized straight-line over the lease term and added to the quoted rate to produce an effective APR. Payment frequency is incorporated as a compounding adjustment.</p>
-          <p style="margin-bottom:0;"><strong>Formula:</strong> APR = Quoted Rate + ((Origination Fee / Lease Amount) × 2 / Term in Years), with a frequency-of-compounding adjustment. The same methodology is applied to every bid. This approximation closely tracks true internal rate of return for origination fees below 2% of principal and is used for ranking purposes only.</p>
+          <p>AMKO Capital ranks bids on an <strong>All-In Annual Percentage Rate (APR)</strong> basis, combining the purchase rate and all one-time fees. The lowest All-In APR wins. The lowest-quoted rate does not necessarily win if that bid carries higher fees.</p>
+          <p><strong>Calculation:</strong> One-time fees are financed into the lease principal. The level lease payment is computed at your proposed rate on the financed principal, over the lease term, at the payment frequency shown above. The All-In APR is the exact effective annual rate at which those payments repay the lease amount the entity actually receives.</p>
+          <p style="margin-bottom:0;">The same methodology is applied to every bid and is used for ranking purposes only.</p>
         </div>
       </details>
       <div class="rate-box">
-        <label>Origination Fee <span style="color:var(--maroon);">*</span></label>
+        <label for="fFee">One-Time Fees ($) <span style="color:var(--maroon);">*</span></label>
         <div class="rate-input-wrap">
           <span class="rate-pct">$</span>
-          <input type="text" inputmode="decimal" class="rate-input" id="fFee" placeholder="0" oninput="fFmtFee(this)" onblur="fBlurFee(this)" onfocus="this.select()" value="0" />
-          <span class="rate-hint">One-time fee financed into the lease principal. Enter 0 if no fee.</span>
+          <input type="text" inputmode="decimal" class="rate-input" id="fFee" placeholder="0" oninput="fFmtFee(this)" onblur="fBlurFee(this)" onfocus="this.select()" value="0" required />
         </div>
-        <div class="ferr" id="feeErr" style="margin-top:8px;">Please enter a valid fee amount (enter 0 for no fee)</div>
+        <p class="rate-hint" style="margin-top:10px;">Enter ALL one-time costs of your bid — origination, documentation, legal, and closing fees. Enter 0 if none. Fees are financed into the lease and are included in the All-In APR used to rank bids.</p>
+        <div class="ferr" id="feeErr" style="margin-top:8px;">Please enter a valid fee amount (enter 0 for no fees)</div>
       </div>
+      <p class="rate-hint" style="margin:-4px 0 20px;"><strong style="color:var(--slate);">Bids are ranked by All-In APR:</strong> the effective annual cost reflecting your proposed rate, all one-time fees (financed), and the payment frequency shown above.</p>
       <div class="fgp">
         <label>Optional Notes</label>
         <textarea id="fNotes" rows="4" placeholder="Any conditions, assumptions, or additional information regarding your bid..."></textarea>
       </div>
       <div style="height:24px;"></div>
       <div class="legal-box">
-        <p>By submitting this bid, your institution confirms that the rate and origination fee provided represent a genuine offer to purchase this tax-exempt municipal lease at the stated terms, subject to satisfactory review of the financial statements and execution of standard lease documentation. The origination fee, if any, will be financed into the total lease principal. AMKO Capital will rank bids on an all-in APR basis — combining the purchase rate and origination fee — and notify all participating institutions of the outcome following the submission deadline.</p>
+        <p>By submitting this bid, your institution confirms that the rate and one-time fees provided represent a genuine offer to purchase this tax-exempt municipal lease at the stated terms, subject to satisfactory review of the financial statements and execution of standard lease documentation. One-time fees, if any, will be financed into the total lease principal. AMKO Capital will rank bids on an All-In APR basis — combining the purchase rate, all one-time fees, and the payment frequency — and notify all participating institutions of the outcome following the submission deadline.</p>
       </div>
       <div class="terms-box" id="bidTermsBox">
         <div class="terms-title">Bid Terms</div>
@@ -302,6 +303,10 @@
 
   function fFmtFee(el) {
     let raw = el.value.replace(/[^0-9.]/g, '');
+    const firstDot = raw.indexOf('.');
+    if (firstDot !== -1) {
+      raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '').slice(0, 2);
+    }
     raw = raw.replace(/^0+(?=\d)/, '');
     el.value = raw;
   }
@@ -309,7 +314,7 @@
   function fBlurFee(el) {
     const num = fParseMoney(el.value);
     if (isNaN(num) || num < 0) { el.value = '0'; return; }
-    el.value = num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+    el.value = String(Math.round(num * 100) / 100);
   }
 
   function fParseDeadline(s) {
@@ -465,7 +470,7 @@
       contactEmail: document.getElementById('fContactEmail').value,
       contactPhone: document.getElementById('fContactPhone').value,
       proposedRate: document.getElementById('fRate').value,
-      originationFee: feeNum,
+      originationFee: Math.round(feeNum * 100) / 100,
       notes: document.getElementById('fNotes').value,
       termsAccepted: 'yes',
       termsVersion: '2026-09-13'
