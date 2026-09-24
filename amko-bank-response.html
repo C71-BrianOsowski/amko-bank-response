@@ -61,8 +61,6 @@
   .rate-input:focus{box-shadow:0 0 0 3px rgba(139,38,53,0.12);}
   .rate-pct{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--maroon);}
   .rate-hint{font-size:13px;color:var(--gray-text);}
-  .legal-box{background:var(--tan-pale);border:1px solid var(--gray-mid);border-radius:6px;padding:20px 24px;margin-bottom:24px;}
-  .legal-box p{font-size:13px;color:var(--gray-text);line-height:1.75;}
   .terms-box{background:var(--tan-pale);border:1px solid var(--gray-mid);border-radius:6px;padding:20px 24px;margin-bottom:24px;}
   .terms-box .terms-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--slate);margin-bottom:10px;}
   .terms-box p{font-size:13px;color:var(--gray-text);line-height:1.75;}
@@ -233,12 +231,9 @@
         <textarea id="fNotes" rows="4" placeholder="Any conditions, assumptions, or additional information regarding your bid..."></textarea>
       </div>
       <div style="height:24px;"></div>
-      <div class="legal-box">
-        <p>By submitting this bid, your institution confirms that the rate and one-time fees provided represent a genuine offer to purchase this tax-exempt municipal lease at the stated terms, subject to satisfactory review of the financial statements and execution of standard lease documentation. One-time fees, if any, will be financed into the total lease principal. AMKO Capital will rank bids on an All-In APR basis — combining the purchase rate, all one-time fees, and the payment frequency — and notify all participating institutions of the outcome following the submission deadline.</p>
-      </div>
       <div class="terms-box" id="bidTermsBox">
         <div class="terms-title">Bid Terms</div>
-        <p>By submitting a bid, the bidding institution agrees that its proposed rate and origination fee are firm for 90 days from the award date. Bids may be revised or withdrawn at any time before the response deadline; after the deadline, all bids are final. If the entity accepts the award within its 14-day acceptance window, the winning institution will honor the bid rate through closing, provided closing occurs within the 90-day hold period. Bid rankings shown to bidders are based on All-In APR (proposed rate plus origination fee). Winning bank and rate details are not disclosed to non-winning bidders.</p>
+        <p>By submitting this bid, your institution confirms that the proposed rate and one-time fees represent a genuine offer to purchase this tax-exempt municipal lease at the stated terms, subject to satisfactory review of the financial statements and execution of standard lease documentation. One-time fees, if any, are financed into the total lease principal. Bids are ranked on an All-In APR basis — combining the proposed rate, all one-time fees, and the payment frequency. Bids may be revised or withdrawn at any time before the response deadline; after the deadline, all bids are final, and the proposed rate and fees are firm for 90 days from the award date. If the entity accepts the award within its 14-day acceptance window, the winning institution will honor the bid rate through closing, provided closing occurs within the 90-day hold period. Bid rankings shown to bidders are based on All-In APR. Winning bank and rate details are not disclosed to non-winning bidders. AMKO Capital will notify all participating institutions of the outcome following the submission deadline.</p>
         <label class="terms-agree" for="fTermsChk">
           <input type="checkbox" id="fTermsChk" onchange="fTermsToggle()" />
           <span>I am authorized to bind the bidding institution and agree to the Bid Terms above.</span>
@@ -473,7 +468,7 @@
       originationFee: Math.round(feeNum * 100) / 100,
       notes: document.getElementById('fNotes').value,
       termsAccepted: 'yes',
-      termsVersion: '2026-09-13'
+      termsVersion: '2026-09-24'
     };
 
     fetch(FLOW_URL, {
