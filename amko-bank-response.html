@@ -220,7 +220,7 @@
         <label for="fFee">One-Time Fees ($) <span style="color:var(--maroon);">*</span></label>
         <div class="rate-input-wrap">
           <span class="rate-pct">$</span>
-          <input type="text" inputmode="decimal" class="rate-input" id="fFee" placeholder="0" oninput="fFmtFee(this)" onblur="fBlurFee(this)" onfocus="this.select()" value="0" required />
+          <input type="text" inputmode="decimal" class="rate-input" id="fFee" placeholder="0.00" oninput="fFmtFee(this)" onblur="fBlurFee(this)" onfocus="this.select()" value="0.00" required />
         </div>
         <p class="rate-hint" style="margin-top:10px;">Enter ALL one-time costs of your bid — origination, documentation, legal, and closing fees. Enter 0 if none. Fees are financed into the lease and are included in the All-In APR used to rank bids.</p>
         <div class="ferr" id="feeErr" style="margin-top:8px;">Please enter a valid fee amount (enter 0 for no fees)</div>
@@ -297,19 +297,19 @@
   }
 
   function fFmtFee(el) {
-    let raw = el.value.replace(/[^0-9.]/g, '');
+    let raw = el.value.replace(/[^0-9.,]/g, '');
     const firstDot = raw.indexOf('.');
     if (firstDot !== -1) {
-      raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '').slice(0, 2);
+      raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/[.,]/g, '').slice(0, 2);
     }
-    raw = raw.replace(/^0+(?=\d)/, '');
+    raw = raw.replace(/^[0,]+(?=\d)/, '');
     el.value = raw;
   }
 
   function fBlurFee(el) {
     const num = fParseMoney(el.value);
-    if (isNaN(num) || num < 0) { el.value = '0'; return; }
-    el.value = String(Math.round(num * 100) / 100);
+    if (isNaN(num) || num < 0) { el.value = '0.00'; return; }
+    el.value = num.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
   }
 
   function fParseDeadline(s) {
