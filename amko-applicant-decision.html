@@ -152,7 +152,8 @@
           <tr><td>Asset / Project</td><td id="dLeasePurpose">—</td></tr>
           <tr><td>Lease Term</td><td id="dLeaseTerm">—</td></tr>
           <tr><td>Winning Bank</td><td id="dWinningBank">—</td></tr>
-          <tr class="highlight-row"><td>Winning Rate</td><td id="dWinningRate">—</td></tr>
+          <tr class="highlight-row" id="rowWinningAPR" style="display:none;"><td>Winning All-In APR</td><td id="dWinningAPR">—</td></tr>
+          <tr class="highlight-row" id="rowWinningRate"><td id="lWinningRate">Winning Rate</td><td id="dWinningRate">—</td></tr>
         </table>
       </div>
     </div>
@@ -238,6 +239,18 @@
     return num.toFixed(2) + '%';
   }
 
+  function formatAPR(val) {
+    const num = parseFloat(val);
+    if (isNaN(num) || num <= 0) return '—';
+    return num.toFixed(3) + '%';
+  }
+
+  function formatFees(val) {
+    const num = parseFloat(val);
+    if (isNaN(num) || num < 0) return '$0';
+    return '$' + num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+  }
+
   function setText(id, val) {
     const el = document.getElementById(id);
     if (el) el.textContent = val || '—';
@@ -263,6 +276,16 @@
     setText('dWinningBank', getParam('winningBank'));
     setText('dWinningRate', formatRate(getParam('winningRate')));
 
+    // Newer award links carry winningAPR and oneTimeFees; older links omit them and render as before.
+    const hasAPR = getParam('winningAPR').trim() !== '';
+    if (hasAPR) {
+      setText('dWinningAPR', formatAPR(getParam('winningAPR')));
+      document.getElementById('rowWinningAPR').style.display = '';
+      document.getElementById('rowWinningRate').classList.remove('highlight-row');
+      setText('lWinningRate', 'Bank Rate / One-Time Fees');
+      setText('dWinningRate', formatRate(getParam('winningRate')) + ' / ' + formatFees(getParam('oneTimeFees')));
+    }
+
     if (decision === 'accept') {
       document.getElementById('pageTitle').textContent = 'Accept Lease Award';
       document.getElementById('pageSubtitle').textContent = 'You are confirming your entity\'s acceptance of this lease award. Please review the details below and complete the confirmation.';
@@ -276,7 +299,7 @@
         '<li>You will receive a confirmation email with a record of this decision.</li>';
       document.getElementById('legalText').innerHTML =
         'By clicking <strong>Confirm Acceptance</strong>, you confirm that you are authorized to accept this lease award on behalf of your entity. ' +
-        'AMKO Capital is authorized to proceed with documentation based on the winning bank\'s rate shown above. ' +
+        'AMKO Capital is authorized to proceed with documentation based on the winning bank\'s ' + (hasAPR ? 'rate and one-time fees' : 'rate') + ' shown above. ' +
         'A timestamped record of this decision will be retained for the file.';
       document.getElementById('submitBtn').textContent = '\u2713  Confirm Acceptance';
       document.getElementById('switchPrompt').textContent = 'Did you mean to reject this award? ';
@@ -343,6 +366,8 @@
       leasePurpose: getParam('leasePurpose'),
       winningBank: getParam('winningBank'),
       winningRate: getParam('winningRate'),
+      winningAPR: getParam('winningAPR'),
+      oneTimeFees: getParam('oneTimeFees'),
       confirmerName: document.getElementById('fConfirmerName').value.trim(),
       confirmerTitle: document.getElementById('fConfirmerTitle').value.trim(),
       notes: document.getElementById('fNotes').value.trim(),
