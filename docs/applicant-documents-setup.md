@@ -137,6 +137,11 @@ Inside the loop:
   base64ToBinary(items('Apply_to_each_-_Files')?['contentBase64'])
   ```
   Create file creates the request-ID folder if it does not exist yet.
+- **FileLink note:** Create file does not output a "Link to item" token. Build the
+  link from the path instead (used in Create item below):
+  ```
+  concat('https://amkoadvisors240.sharepoint.com', if(startsWith(outputs('Create_file')?['body/Path'], '/'), '', '/'), replace(outputs('Create_file')?['body/Path'], ' ', '%20'))
+  ```
 - **Create item** (SharePoint) — List: LeaseDocuments. Map:
   - Title: `@{outputs('Compose_-_RequestID')}`
   - EntityName: `@{triggerBody()?['entityName']}`
@@ -145,7 +150,7 @@ Inside the loop:
   - FileName: `@{outputs('Compose_-_SafeName')}`
   - OriginalFileName: `@{items('Apply_to_each_-_Files')?['fileName']}`
   - FileSize: `@{items('Apply_to_each_-_Files')?['size']}`
-  - FileLink: `@{outputs('Create_file')?['body/{Link}']}`
+  - FileLink: the path-based link expression from the note above (fx tab)
   - UploadedBy: `@{triggerBody()?['uploaderName']}`
   - UploadedByTitle: `@{triggerBody()?['uploaderTitle']}`
   - UploadedByEmail: `@{triggerBody()?['uploaderEmail']}`
@@ -163,8 +168,10 @@ earlier submissions.
 **6. Select - DocTypes** — From: value of Get items - AllDocs. Switch the Map to
 text mode (the small icon on the right) and enter:
 ```
-item()?['DocumentType']
+item()?['DocumentType']?['Value']
 ```
+DocumentType is a Choice column, so SharePoint returns it as an object with a
+`Value` property; the `?['Value']` is required or the checklist will never match.
 This yields a plain array of type names, e.g. `["Invoice","Resolution"]`.
 
 **7. Compose - AllReceived**
